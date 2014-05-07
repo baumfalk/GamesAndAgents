@@ -1,0 +1,318 @@
+<rml>
+
+    <head>
+    <title>Sidebar</title>
+    <style>
+
+        #templates
+        {
+            display: none;
+        }
+
+        body
+        {
+            font-family: DroidSans;
+            color: white;
+            height: 100%;
+            top: 0px;
+            right: 11px;
+            width: 278px;
+            z-index: 0;
+        }
+
+        panel
+        {
+            margin-top: 8px;
+            border-width: 0px;
+        }
+
+        h1
+        {
+            height: 36px;
+            line-height: 36px;
+            font-size: 20;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+            display: block;
+            background-color: rgba(27, 7, 90, 200);
+        }
+
+        .content
+        {
+            background-color: rgba(50, 50, 50, 220);
+            display: block;
+            padding-top: 5px;
+            padding-bottom: 10px;
+        }
+
+        .sliders-container
+        {
+            display: block;
+            margin-left: 10px;
+        }
+
+        button, input.submit
+        {
+            background-decorator: image;
+            font-weight: normal;
+            background-image: sidebar_widgets.png 0px 90px 210px 121px;
+            padding: 10px;
+        }
+
+
+        button:hover, input.submit:hover
+        {
+            font-weight: normal;
+            background-image: sidebar_widgets_hover.png 0px 90px 210px 121px;
+        }
+
+        button:active, input.submit:active
+        {
+            font-weight: bold;
+            background-image: sidebar_widgets_active.png 0px 90px 210px 121px;
+        }
+
+        .slider-line
+        {
+            display: block;
+            padding-bottom: 30px;
+        }
+
+        .button-line
+        {
+            display: block;
+            text-align: right;
+            padding-bottom: 15px;
+            padding-right: 15px;
+            padding-top: 5px;
+        }
+
+        input.range slidertrack
+        {
+            margin-top: 10px;
+            height: 15px;
+            background-decorator: tiled-vertical;
+            background-top-image: sidebar_widgets.png 0px 0px 0px 0px;
+            background-center-image: sidebar_widgets.png stretch 0px 70px 210px 85px;
+            background-bottom-image: sidebar_widgets.png 0px 70px 210px 85px;
+        }
+
+        input.range slidertrack:hover
+        {
+            background-top-image: sidebar_widgets_hover.png 0px 0px 0px 0px;
+            background-center-image: sidebar_widgets_hover.png stretch 0px 70px 210px 85px;
+            background-bottom-image: sidebar_widgets_hover.png 0px 70px 210px 85px;
+        }
+
+        input.range slidertrack:active
+        {
+            background-top-image: sidebar_widgets_active.png 0px 0px 0px 0px;
+            background-center-image: sidebar_widgets_active.png stretch 0px 70px 210px 85px;
+            background-bottom-image: sidebar_widgets_active.png 0px 70px 210px 85px;
+        }
+
+        input.range sliderbar
+        {
+            width: 25px;
+            height: 25px;
+            margin-top: 5px;
+            background-decorator: tiled-vertical;
+            background-top-image: sidebar_widgets.png 0px 0px 0px 0px;
+            background-center-image: sidebar_widgets.png stretch 0px 40px 25px 65px;
+            background-bottom-image: sidebar_widgets.png 0px 40px 25px 65px;
+        }
+
+        input.range sliderbar:hover
+        {
+            background-top-image: sidebar_widgets_hover.png 0px 0px 0px 0px;
+            background-center-image: sidebar_widgets_hover.png stretch 0px 40px 25px 65px;
+            background-bottom-image: sidebar_widgets_hover.png 0px 40px 25px 65px;
+        }
+
+        input.range sliderbar:active
+        {
+            background-top-image: sidebar_widgets_activeD.png 0px 0px 0px 0px;
+            background-center-image: sidebar_widgets_active.png stretch 0px 40px 25px 65px;
+            background-bottom-image: sidebar_widgets_active.png 0px 40px 25px 65px;
+        }
+
+        input.range sliderarrowdec
+        {
+            width: 20px;
+            height: 15px;
+            margin-top: 10px;
+            icon-decorator: image;
+            icon-image: sidebar_widgets.png 0px 0px 20px 15px;
+        }
+
+        input.range sliderarrowdec:hover
+        {
+            icon-image: sidebar_widgets_hover.png 0px 0px 20px 15px;
+        }
+
+        input.range sliderarrowdec:active
+        {
+            icon-image: sidebar_widgets_active.png 0px 0px 20px 15px;
+        }
+
+
+        input.range sliderarrowinc
+        {
+            width: 20px;
+            height: 15px;
+            margin-top: 10px;
+            icon-decorator: image;
+            icon-image: sidebar_widgets.png 0px 20px 20px 35px;
+        }
+
+        input.range sliderarrowinc:hover
+        {
+            icon-image: sidebar_widgets_hover.png 0px 20px 20px 35px;
+        }
+
+        input.range sliderarrowinc:active
+        {
+            icon-image: sidebar_widgets_active.png 0px 20px 20px 35px;
+        }
+
+        input.radio, input.checkbox
+        {
+            width: 30px;
+            height: 30px;
+            vertical-align: -11px;
+        }
+
+        input.checkbox
+        {
+            icon-decorator: image;
+            icon-image: widgets.png 407px 60px 437px 90px;
+        }
+
+        input.checkbox:hover
+        {
+            icon-image-s: 437px 467px;
+        }
+
+        input.checkbox:active
+        {
+            icon-image-s: 467px 497px;
+        }
+
+        input.checkbox:checked
+        {
+            icon-image-t: 90px 120px;
+        }
+
+        input.checkbox:checked:hover
+        {
+            icon-image-s: 437px 467px;
+            icon-image-t: 90px 120px;
+        }
+
+        input.checkbox:checked:active
+        {
+            icon-image-s: 467px 497px;
+            icon-image-t: 90px 120px;
+        }
+
+        .sidebar-line
+        {
+            display: block;
+            width: 100%;
+        }
+
+        .sidebar-text-line
+        {
+            display: block;
+            line-height: 15px;
+            padding-left: 15px;
+            padding-right: 15px;
+            padding-bottom: 5px;
+        }
+
+        .sidebar-line b
+        {
+            color: rgba(255, 255, 255, 255);
+            font-weight: bold;
+        }
+
+        .legend-box-wrapper
+        {
+            display: block;
+            float: left;
+            width: 10%;
+            padding-left: 7%;
+        }
+
+        .legend-description
+        {
+            display: block;
+            width: 83%;
+            float: left;
+            line-height: 20px;
+        }
+
+        .legend-box-content
+        {
+            display: block;
+        }
+
+        .legend-box
+        {
+            display: block;
+            width: 20px;
+            height: 20px;
+        }
+
+    </style>
+
+
+    </head>
+    <body>
+        <div id="properties-panel">
+        </div>
+        <div id="templates">
+
+            <div id="TEMPLATE_SECTION">
+                <panel id="SECTION_IDENTIFIER" class="properties-section" click="capture">
+                </panel>
+            </div>
+
+            <div id="TEMPLATE_HEADER" class="titlebar">
+                <h1 id="HEADER_LABEL"></h1>
+            </div>
+
+            <div id="CONTENT_TEMPLATE" class="content"></div>
+
+            <div id="SLIDERS_CONTAINER_TEMPLATE" class="sliders-container"></div>
+
+            <div id="LEGEND_CONTAINER_TEMPLATE" class="legend-container"></div>
+
+            <div id="template-textlabel">
+                <span id="TEXTLABEL_LABEL" class="textlabel"></span>
+            </div>
+            <div id="template-button">
+                <div class="button-line">
+                    <input id="BUTTON_IDENTIFIER" type="submit"></input> 
+                </div>
+            </div>
+            <div id="template-checkbox">
+                <input id="CHECKBOX_IDENTIFIER" type="checkbox"/> <span id="CHECKBOX_LABEL"></span> <br/>
+            </div>
+            <div id="template-radiogroup">
+                <span id="RADIO_GROUP_LABEL"></span> <br/>
+                <div id="template-radio">
+                    <input id="RADIO_IDENTIFIER" type="radio"/> <span id="RADIO_LABEL"></span> <br/>
+                </div>
+            </div>
+            <div id="template-slider">
+                <span id="SLIDER_LABEL"></span><br/>
+                <div class="slider-line">
+                    <input class="slider-input" id="SLIDER_IDENTIFIER" type="range"/> <br/>
+                </div>
+            </div>
+        </div>
+    </body>
+
+</rml>
