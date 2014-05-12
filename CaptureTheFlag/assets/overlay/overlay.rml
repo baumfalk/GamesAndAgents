@@ -1,0 +1,224 @@
+<rml>
+<head>
+<title>Overlay</title>
+<style>
+    body
+    {
+        position: absolute;
+        top: 0%;
+        left: 0%;
+        height: 100%;
+        width: 100%;
+    }
+
+    b
+    {
+        font-weight: bold;
+    }
+
+    div
+    {
+        font-family: DroidSans;
+        font-weight: bold;
+        font-size: 24;
+        text-align: center;
+        color: rgba(250, 10, 250, 250);
+        background-color: rgba(50, 50, 50, 150);
+    }
+
+    .layer-info-label
+    {
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        font-size: 28;
+        font-family: Inconsolata;
+        font-weight: bold;
+
+        padding-left: 8px;
+        padding-right: 8px;
+
+        margin-left: 8px;
+        margin-top: 8px;
+
+        border-width: 2px;
+        border-color: rgba(27, 7, 90, 200);
+        background-color: rgba(27, 7, 90, 200);
+    }
+
+    .centered-info-box
+    {
+
+        font-family: DroidSans;
+        font-weight: bold;
+        padding: 25px;
+        position: fixed;
+        width: 20%;
+        left: 40%;
+        top: 45%;
+        border-width: 2px;
+        border-color: rgba(222, 222, 222, 255);
+        background-color: rgba(50, 50, 50, 210);
+        font-size: 30;
+        text-align: center;
+    }
+
+    .node-info-label
+    {
+        padding: 10px;
+        border-width: 2px;
+        border-color: rgba(222, 222, 222, 255);
+        font-family: DroidSans;
+        font-weight: bold;
+        font-size: 18;
+        text-align: center;
+        background-color: rgba(50, 50, 50, 210);
+    }
+
+    .base-label
+    {
+        font-family: DroidSans;
+        font-weight: bold;
+        font-size: 24;
+        text-transform: uppercase;
+        color: black;
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    .bot-label
+    {
+        font-size: 14;
+        font-family: Inconsolata;
+        color: black;
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    .timer-label
+    {
+        font-size: 18;
+        font-family: Inconsolata;
+        font-weight: bold;
+        color: white;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    .my-sidebar
+    {
+        padding: 10px;
+        border-left-width: 2px;
+        border-color: rgba(222, 222, 222, 255);
+        font-family: DroidSans;
+        font-weight: bold;
+        font-size: 24;
+        text-decoration: underline;
+        text-align: center;
+        background-color: rgba(50, 50, 50, 210);
+        position: absolute;
+        height: 100%;
+        width: 20%;
+        right: 0;
+    }
+
+
+
+    .control-keys-modal-window
+    {
+        display: block;
+        margin:auto;
+        width: 800px;
+        height: 400px;
+        border-width: 2px;
+        border-color: rgba(27, 7, 90, 200);
+        font-size: 14;
+        text-align: left;
+    }
+
+    .control-keys-title-bar
+    {
+        display: block;
+        height: 50px;
+        width: 100%;
+        background-color: rgba(27, 7, 90, 200);
+        line-height: 50px;
+        font-size: 28;
+        text-align: center;
+    }
+
+
+    .control-keys-sections 
+    {
+        display: block;
+        width: 100%;
+        height: 350px;
+    }
+
+    .control-keys-section-horizontal
+    {
+        display: block;
+        float:left;
+        width: 399px;
+        height: 100%;
+    }
+
+    .section-border-left
+    {
+        border-left-width: 2px;
+        border-left-color: rgba(27, 7, 90, 200);
+    }
+
+    .control-keys-section-vertical
+    {
+        display: block;
+        float:left;
+        width: 100%;
+    }
+
+
+
+    .section-title
+    {
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        font-size: 20;
+        display: block;
+        width: 100%;
+        background-color: rgba(35, 38, 35, 220);
+    }
+
+    .section-content
+    {
+        padding: 10px;
+        display: block;
+        font-weight: normal;
+    }
+
+    .section-entry
+    {
+        display: block;
+        line-height: 22px;
+    }
+
+    .section-entry-left-column 
+    {
+        display: block;
+        width: 15%;
+        float: left;
+    }
+    .section-entry-right-column 
+    {
+        display: block;
+        width: 85%;
+        float: left;
+    }
+
+</style>
+</head>
+<body>
+</body>
+</rml>

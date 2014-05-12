@@ -11,9 +11,17 @@
   #3. Actively search around points of interest to gain map awareness
 
 # Import AI Sandbox API:
-from api import Commander
-from api import commands
-from api import Vector2
+from api.commander import Commander
+#from api import commands
+#from api import Vector2
+# The commander can send orders to individual bots.  These are listed and
+# documented in orders.py from the ./api/ folder also.
+from api import orders
+
+# The maps for CTF are layed out along the X and Z axis in space, but can be
+# effectively be considered 2D.
+from api.vector2 import Vector2
+
 
 # Import other modules
 import random
@@ -491,7 +499,7 @@ class BotHasFlag(Task):
 
 class LookRandom(Task):
     def run(self):
-        self.getData('commander').issue(commands.Defend, self.getData('bot'), Vector2(random.random()*2 - 1, random.random()*2 - 1), description = 'Looking in random direction')
+        self.getData('commander').issue(orders.Defend, self.getData('bot'), Vector2(random.random()*2 - 1, random.random()*2 - 1), description = 'Looking in random direction')
         return True
 
 class ChargeFlag(Task):
@@ -499,7 +507,7 @@ class ChargeFlag(Task):
         bot = self.getData('bot')
         level = self.getData('commander').level
         if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_CHARGING and bot.state != bot.STATE_TAKINGORDERS:
-            self.getData('commander').issue(commands.Charge, self.getData('bot'), self.getData('commander').game.enemyTeam.flag.position, description = 'Rushing enemy flag')
+            self.getData('commander').issue(orders.Charge, self.getData('bot'), self.getData('commander').game.enemyTeam.flag.position, description = 'Rushing enemy flag')
         return True
 
 class SmartApproachFlag(Task):
@@ -521,7 +529,7 @@ class SmartApproachFlag(Task):
                 if len(path) > 0:
                     orderPath = path[::10]
                     orderPath.append(path[-1]) # take every 10th point including last point
-                    cmdr.issue(commands.Charge, bot, orderPath, description = message) 
+                    cmdr.issue(orders.Charge, bot, orderPath, description = message) 
 
 class ChargeToFlagFlank(Task):
     def run(self):
@@ -529,7 +537,7 @@ class ChargeToFlagFlank(Task):
         level = self.getData('commander').level
         if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_CHARGING and bot.state != bot.STATE_TAKINGORDERS:
             flankPos = self.getData('commander').getFlankingPosition(bot, self.getData('commander').game.enemyTeam.flag.position)
-            self.getData('commander').issue(commands.Charge, self.getData('bot'), flankPos, description = 'Rushing enemy flag via flank')
+            self.getData('commander').issue(orders.Charge, self.getData('bot'), flankPos, description = 'Rushing enemy flag via flank')
         return True
 
 
@@ -538,7 +546,7 @@ class AttackFlag(Task):
         bot = self.getData('bot')
         cmdr = self.getData('commander')
         if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_ATTACKING and bot.state != bot.STATE_TAKINGORDERS:
-            cmdr.issue(commands.Attack, bot, cmdr.game.enemyTeam.flag.position, description = 'Attacking enemy flag')
+            cmdr.issue(orders.Attack, bot, cmdr.game.enemyTeam.flag.position, description = 'Attacking enemy flag')
         return True    
 
 class WithinShootingDistance(Task):
@@ -552,7 +560,7 @@ class RunToScoreZone(Task):
     def run(self):
         bot = self.getData('bot')
         if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_CHARGING and bot.state != bot.STATE_TAKINGORDERS:        
-            self.getData('commander').issue(commands.Charge, self.getData('bot'), self.getData('commander').game.team.flagScoreLocation, description = 'Taking their flag home')
+            self.getData('commander').issue(orders.Charge, self.getData('bot'), self.getData('commander').game.team.flagScoreLocation, description = 'Taking their flag home')
         return True
 
 class AllyHasFlag(Task):
@@ -588,7 +596,7 @@ class SecureEnemyFlagObjective(Task):
                 direction = (cmdr.midPoint - bot.position).normalized() + (random.random() - 0.5)
                 dirLeft = Vector2(-direction.y, direction.x)
                 dirRight = Vector2(direction.y, -direction.x)
-                cmdr.issue(commands.Defend, bot, [(direction, 1.0), (dirLeft, 1.0), (direction, 1.0), (dirRight, 1.0)], description = 'Keeping flag objective secure')
+                cmdr.issue(orders.Defend, bot, [(direction, 1.0), (dirLeft, 1.0), (direction, 1.0), (dirRight, 1.0)], description = 'Keeping flag objective secure')
         else:
             enemiesAlive = False
             for b in cmdr.game.enemyTeam.members:
@@ -598,10 +606,10 @@ class SecureEnemyFlagObjective(Task):
 
             if enemiesAlive:
                 if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_ATTACKING and bot.state != bot.STATE_TAKINGORDERS:
-                    cmdr.issue(commands.Attack, bot, secureLoc, description = 'Moving to secure enemy flag objective')
+                    cmdr.issue(orders.Attack, bot, secureLoc, description = 'Moving to secure enemy flag objective')
             else:
                 if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_CHARGING and bot.state != bot.STATE_TAKINGORDERS:
-                    cmdr.issue(commands.Charge, bot, secureLoc, description = 'Charging to secure enemy flag objective')                
+                    cmdr.issue(orders.Charge, bot, secureLoc, description = 'Charging to secure enemy flag objective')                
         return True
 
 class NearEnemyFlag(Task):
@@ -643,7 +651,7 @@ class SecureOurFlag(Task):
                 direction = (cmdr.midPoint - bot.position).normalized() + (random.random() - 0.5)
                 dirLeft = Vector2(-direction.y, direction.x)
                 dirRight = Vector2(direction.y, -direction.x)
-                cmdr.issue(commands.Defend, bot, [(direction, 1.0), (dirLeft, 1.0), (direction, 1.0), (dirRight, 1.0)], description = 'Keeping our flag secure')
+                cmdr.issue(orders.Defend, bot, [(direction, 1.0), (dirLeft, 1.0), (direction, 1.0), (dirRight, 1.0)], description = 'Keeping our flag secure')
         else:
             enemiesAlive = False
             for b in cmdr.game.enemyTeam.members:
@@ -653,10 +661,10 @@ class SecureOurFlag(Task):
 
             if enemiesAlive:
                 if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_ATTACKING and bot.state != bot.STATE_TAKINGORDERS:
-                    cmdr.issue(commands.Attack, bot, secureLoc, description = 'Moving to secure our flag')
+                    cmdr.issue(orders.Attack, bot, secureLoc, description = 'Moving to secure our flag')
             else:
                 if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_CHARGING and bot.state != bot.STATE_TAKINGORDERS:
-                    cmdr.issue(commands.Charge, bot, secureLoc, description = 'Charging to secure our flag')
+                    cmdr.issue(orders.Charge, bot, secureLoc, description = 'Charging to secure our flag')
 
         return True
 
@@ -700,9 +708,9 @@ class SecureOurFlagStand(Task):
                                     directions.append(aimDir.normalized())
 
                     if len(directions) > 0:
-                        cmdr.issue(commands.Defend, bot, directions, description = 'Keeping our flag stand secure')
+                        cmdr.issue(orders.Defend, bot, directions, description = 'Keeping our flag stand secure')
                     else:
-                        cmdr.issue(commands.Defend, bot, (cmdr.game.team.flagSpawnLocation - bot.position).normalized(), description = 'Keeping our flag stand secure')    
+                        cmdr.issue(orders.Defend, bot, (cmdr.game.team.flagSpawnLocation - bot.position).normalized(), description = 'Keeping our flag stand secure')    
             else:
                 enemiesAlive = False
                 for b in cmdr.game.enemyTeam.members:
@@ -712,8 +720,8 @@ class SecureOurFlagStand(Task):
 
                 if enemiesAlive:
                     if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_ATTACKING and bot.state != bot.STATE_TAKINGORDERS:
-                        cmdr.issue(commands.Attack, bot, secureLoc, description = 'Moving to secure our flag stand')
+                        cmdr.issue(orders.Attack, bot, secureLoc, description = 'Moving to secure our flag stand')
                 else:
                     if bot.state != bot.STATE_SHOOTING and bot.state != bot.STATE_CHARGING and bot.state != bot.STATE_TAKINGORDERS:
-                        cmdr.issue(commands.Charge, bot, secureLoc, description = 'Charging to secure our flag stand')
+                        cmdr.issue(orders.Charge, bot, secureLoc, description = 'Charging to secure our flag stand')
         return True
