@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     cmd = sys.argv[1] if len(sys.argv) > 1 else "help"
     args = sys.argv[2:] if len(sys.argv) > 2 else []
-
+    print args
     if cmd == "match":
         code = run_match(args)
     elif cmd == "evaluate":
