@@ -16,6 +16,5 @@ for key in showdowns.keys():
     for i in range(showdowns[key]):
         print "Match [",i,"/",showdowns[key],"]"
         cmd = cmdBasic + " " + ourBot + " " + key + " --headless"
-        print  cmd
         os.system(cmd)
     
