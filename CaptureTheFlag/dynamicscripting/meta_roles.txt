@@ -1,0 +1,16 @@
+[{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "onlyAttackers"
+}, {
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "onlyDefenders"
+}, {
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "onlyCatchers"
+}]
