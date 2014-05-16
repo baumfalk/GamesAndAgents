@@ -1,4 +1,32 @@
-"""A set of example Commanders with simple AI.
+"""Everything that is needed for a dynamic scripting AI commander
+"""
+
+#TODO:
+#1. Evaluation and weight altering
+#2. more and better rules
+#3. A way to select different rules from the script
+#4. Enhance the way the arguments are passed to the rules.
+#   For example, it might be useful if we have a custom info object that contains all the info needed
+#   for the bot rules.
+
+"""
+This bot works as follows
+
+There exists various text files in the folder ./dynamicscripting/. These contain rules, as well as weights for these and an ordering on these rules.
+The actual implementation in this rules is (currently) in this file. Most of the text files describe the rules for various roles
+that a bot can have, such as an attacker, a defender etc. There are two special text files, namely meta_roles.txt and meta_switch.txt. These
+files list the rules that are used for distributing the various roles to the bots and the rules used for deciding when to switch role distribution.
+
+The code flow is as follows:
+
+1. The commander is created. It loads all the rules from the dynamicscripting folder
+2. It distributes the roles to the agents according to its meta role rules.
+3. For each bot, a script is generated based on the rule set associated with its role
+4. For each tick, the following happens:
+5. The meta switch rules determine whether a role switch is necessary and if so, perform this.
+6. Each bot generates a new action, based on its rule set and the information provided by the commander. The commander 'issues' this command
+   to the bot (even though the bot generated it himself)
+
 """
 
 import random
@@ -21,7 +49,8 @@ def contains(area, position):
 # todo: maybe put this in different file
 #   
  
-# meta roles rules  
+# meta roles rules 
+# currently just a list of strings, one string for each bot saying what role he is
 def onlyAttackers(numberOfPersons):
     return ["attacker" for x in range(numberOfPersons)]
     
@@ -37,7 +66,9 @@ def neverSwitch(statistics):
     return False
     
 # rules for the different roles 
-#todo: put all these arguments in a separate object
+
+#rules for attacker
+#todo: put all these arguments in a separate object?
 def attack(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
     # no one to attack: explore
     if len(listVisibleEnemies) == 0:
@@ -45,6 +76,7 @@ def attack(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomF
     else: # attack a random enemy in sight
         return (orders.Charge, random.choice(listVisibleEnemies),"Attacker is attacking random enemy")
 
+#rules for defender
 def defend(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
     # no one to attack: return to flag
     if len(listVisibleEnemies) == 0:
@@ -52,6 +84,8 @@ def defend(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomF
     else: # attack a random enemy in sight
         return (orders.Attack, random.choice(listVisibleEnemies),"Defender is attacking random enemy")  
 
+        
+#rules for catcher        
 def gotoflag(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
     # no one to attack: return to flag
     if len(listVisibleEnemies) == 0:
@@ -62,6 +96,129 @@ def gotoflag(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,rando
     else: # attack a random enemy in sight
         return (orders.Attack, random.choice(listVisibleEnemies),"Catcher is attacking random enemy")   
 
+
+class DynamicCommander(Commander):
+    """
+    A very dynamic and flexible commander ifyouknowwhatimean
+    """
+    def initialize(self):
+        self.verbose = True
+        self.statistics = {"numberOfKills":0} #todo: fill this while playing
+        #todo: make this more generic,
+        # i.e. allow for an arbitrary number of roles
+        # load all rule bases
+        self.loadMetaRules()
+        self.loadAttackerRules()
+        self.loadDefenderRules()
+        self.loadCatcherRules()
+        
+        # distribute the roles to the bots 
+        self.distributeRoles()
+        # and generate the corresponding scripts
+        self.initializeRoles()
+
+    def loadMetaRules(self):
+        self.log.info("Loading the meta role rules")
+        conn = open(sys.path[0]+"/dynamicscripting/meta_roles.txt",'r')
+        self.metaRoleRuleBase = jsonpickle.decode(conn.read())
+        conn.close()
+        
+        self.log.info("Loading the meta switch rules")
+        conn = open(sys.path[0]+"/dynamicscripting/meta_switch.txt",'r')
+        self.metaSwitchRuleBase = jsonpickle.decode(conn.read())
+        conn.close()
+    
+    def loadAttackerRules(self):
+        self.log.info("Loading the attacker rules")
+        conn = open(sys.path[0]+"/dynamicscripting/attacker.txt",'r')
+        self.attackerRulebase = jsonpickle.decode(conn.read())
+        conn.close()    
+        
+    def loadDefenderRules(self):
+        self.log.info("Loading the defender rules")
+        conn = open(sys.path[0]+"/dynamicscripting/defender.txt",'r')
+        self.defenderRulebase = jsonpickle.decode(conn.read())
+        conn.close()        
+
+    def loadCatcherRules(self):
+        self.log.info("Loading the catcher rules")
+        conn = open(sys.path[0]+"/dynamicscripting/catcher.txt",'r')
+        self.catcherRulebase = jsonpickle.decode(conn.read())
+        conn.close()
+    
+    def distributeRoles(self):
+        self.log.info("Distributing the roles")
+        number_bots = len(self.game.team.members)
+        
+        #script generation! Currently only one rule in the rulebase.
+        self.metaRoleScript =  DynamicScriptingInstance(DynamicScriptingClass(self.metaRoleRuleBase))
+        self.metaRoleScript.generateScript(1)
+        
+        self.metaSwitchScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaSwitchRuleBase))
+        self.metaSwitchScript.generateScript(1)
+        
+        #generate a rolelist
+        args = [number_bots]
+        roleList = self.metaRoleScript.runRule(0,args)
+        self.log.info("Rolelist: "+ str(roleList))
+        #assign each bot a role
+        for botIndex in range(number_bots):
+            self.game.team.members[botIndex].role = roleList[botIndex]
+            
+    def initializeRoles(self):
+        self.log.info("Initializing roles")
+        for bot in self.game.team.members:
+            
+            if(bot.role == "attacker"):
+                self.log.info("Generating attacker script")
+                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.attackerRulebase))
+                bot.script.generateScript(1)
+            elif(bot.role == "defender"):
+                self.log.info("Generating defender script")
+                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.defenderRulebase))
+                bot.script.generateScript(1)
+            elif(bot.role == "catcher"):
+                self.log.info("Generating catcher script")
+                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.catcherRulebase))
+                bot.script.generateScript(1)
+            else: #backup: also attacker 
+                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.attackerRulebase))
+                bot.script.generateScript(1)
+
+    def tick(self):
+        self.log.info("Tick!")
+        # should the commander issue a new strategy?
+        # TODO:
+        # 1. make distributeRoles take the current distribution into account
+        # 2. Let initializeRoles take currently good performing scripts for roles into account
+        if self.metaSwitchScript.runRule(0,[self.statistics]):
+            self.log.info("Switching tactics")
+            distributeRoles()
+            initializeRoles()
+        
+        #todo: maybe do this at initialization?
+        #load information
+        our_flag = self.game.team.flag.position
+        their_flag = self.game.enemyTeam.flag.position
+        listFlagLocations = [our_flag,their_flag]
+        our_flag_location = self.game.team.flagScoreLocation
+        their_flag_location = self.game.team.flagScoreLocation
+        listFlagReturnLocations = [our_flag_location,their_flag_location]
+        # give the bots new commands
+        self.log.info("Giving orders to all the bots")
+        for bot in self.game.bots_alive:
+            listVisibleEnemies = [b.position for b in bot.visibleEnemies]
+            randomFreePosition = self.level.findRandomFreePositionInBox(self.level.area)
+            hasFlag = bot.flag
+            
+            cmd, target, desc = bot.script.runRule(0,[listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag])
+          
+            if target:
+                self.issue(cmd, bot, target,description = desc)
+
+#                
+# dynamic scripting stuff
+#
 class Rule(object):
     def __init__(self, func):
         self.func = func
@@ -183,118 +340,3 @@ class DynamicScriptingInstance:
                 rule_index = self.rules[i].index
                 self.rules_active[ rule_index ] = True
                 return # should we return here?
-
-class DynamicCommander(Commander):
-    """
-    A very dynamic and flexible commander ifyouknowwhatimean
-    """
-    def initialize(self):
-        self.verbose = True
-        self.statistics = {"numberOfKills":0}
-        #todo: make this more generic,
-        # i.e. allow for an arbitrary number of roles
-        self.loadMetaRules()
-        self.loadAttackerRules()
-        self.loadDefenderRules()
-        self.loadCatcherRules()
-        
-        self.distributeRoles()
-        self.initializeRoles()
-
-    def loadMetaRules(self):
-        self.log.info("Loading the meta role rules")
-        conn = open(sys.path[0]+"/dynamicscripting/meta_roles.txt",'r')
-        self.metaRoleRuleBase = jsonpickle.decode(conn.read())
-        conn.close()
-        
-        self.log.info("Loading the meta switch rules")
-        conn = open(sys.path[0]+"/dynamicscripting/meta_switch.txt",'r')
-        self.metaSwitchRuleBase = jsonpickle.decode(conn.read())
-        conn.close()
-    
-    def loadAttackerRules(self):
-        self.log.info("Loading the attacker rules")
-        conn = open(sys.path[0]+"/dynamicscripting/attacker.txt",'r')
-        self.attackerRulebase = jsonpickle.decode(conn.read())
-        conn.close()    
-        
-    def loadDefenderRules(self):
-        self.log.info("Loading the defender rules")
-        conn = open(sys.path[0]+"/dynamicscripting/defender.txt",'r')
-        self.defenderRulebase = jsonpickle.decode(conn.read())
-        conn.close()        
-
-    def loadCatcherRules(self):
-        self.log.info("Loading the catcher rules")
-        conn = open(sys.path[0]+"/dynamicscripting/catcher.txt",'r')
-        self.catcherRulebase = jsonpickle.decode(conn.read())
-        conn.close()
-    
-    def distributeRoles(self):
-        self.log.info("Distributing the roles")
-        number_bots = len(self.game.team.members)
-        
-        self.metaRoleScript =  DynamicScriptingInstance(DynamicScriptingClass(self.metaRoleRuleBase))
-        self.metaRoleScript.generateScript(1)
-        
-        self.metaSwitchScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaSwitchRuleBase))
-        self.metaSwitchScript.generateScript(1)
-        
-        #generate a rolelist
-        args = [number_bots]
-        roleList = self.metaRoleScript.runRule(0,args)
-        self.log.info("Rolelist: "+ str(roleList))
-        #assign each bot a role
-        for botIndex in range(number_bots):
-            self.game.team.members[botIndex].role = roleList[botIndex]
-            
-    def initializeRoles(self):
-        self.log.info("Initializing roles")
-        for bot in self.game.team.members:
-            
-            if(bot.role == "attacker"):
-                self.log.info("Generating attacker script")
-                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.attackerRulebase))
-                bot.script.generateScript(1)
-            elif(bot.role == "defender"):
-                self.log.info("Generating defender script")
-                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.defenderRulebase))
-                bot.script.generateScript(1)
-            elif(bot.role == "catcher"):
-                self.log.info("Generating catcher script")
-                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.catcherRulebase))
-                bot.script.generateScript(1)
-            else: #backup: also attacker 
-                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.attackerRulebase))
-                bot.script.generateScript(1)
-
-    def tick(self):
-        """Process all the bots that are done with their orders and available for taking orders."""
-        self.log.info("Tick!")
-        # should the commander issue a new strategy?
-        # TODO:
-        # 1. make distributeRoles take the current distribution into account
-        # 2. Let initialize take good performing scripts for roles into account
-        if self.metaSwitchScript.runRule(0,[self.statistics]):
-            self.log.info("Switching tactics")
-            distributeRoles()
-            initializeRoles()
-        
-        #load information
-        our_flag = self.game.team.flag.position
-        their_flag = self.game.enemyTeam.flag.position
-        listFlagLocations = [our_flag,their_flag]
-        our_flag_location = self.game.team.flagScoreLocation
-        their_flag_location = self.game.team.flagScoreLocation
-        listFlagReturnLocations = [our_flag_location,their_flag_location]
-        # give the bots new commands
-        self.log.info("Giving orders to all the bots")
-        for bot in self.game.bots_alive:
-            listVisibleEnemies = [b.position for b in bot.visibleEnemies]
-            randomFreePosition = self.level.findRandomFreePositionInBox(self.level.area)
-            hasFlag = bot.flag
-            
-            cmd, target, desc = bot.script.runRule(0,[listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag])
-          
-            if target:
-                self.issue(cmd, bot, target,description = desc)
