@@ -16,7 +16,7 @@ showdowns["SleekoCommander.SleekoCommander"] = 12
 for key in showdowns.keys():
     print "Battling ", ourBot , " against ", key, "!"
     for i in range(showdowns[key]):
-        print "Match [",i,"/",showdowns[key],"]"
+        print "Match [",(i+1),"/",showdowns[key],"]"
         cmd = cmdBasic + " " + ourBot + " " + key + " --headless"
         os.system(cmd)
     
