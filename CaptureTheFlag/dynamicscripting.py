@@ -36,6 +36,7 @@ from api import gameinfo
 from api.commander import Commander
 from api import orders
 from api.vector2 import Vector2
+from knowledge import Knowledge
 import jsonpickle
 import sys
 
@@ -104,6 +105,9 @@ class DynamicCommander(Commander):
     def initialize(self):
         self.verbose = True
         self.statistics = {"numberOfKills":0} #todo: fill this while playing
+        self.knowledge = Knowledge()
+        self.knowledge.initialize(self)
+        
         #todo: make this more generic,
         # i.e. allow for an arbitrary number of roles
         # load all rule bases
@@ -186,7 +190,10 @@ class DynamicCommander(Commander):
                 bot.script.generateScript(1)
 
     def tick(self):
-        self.log.info("Tick!")
+        self.log.info("Tick at time " + str(self.game.match.timePassed) + "!")
+        
+        self.knowledge.tick() #Update knowledge base
+        
         # should the commander issue a new strategy?
         # TODO:
         # 1. make distributeRoles take the current distribution into account
