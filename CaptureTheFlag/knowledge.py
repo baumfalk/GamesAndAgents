@@ -78,7 +78,7 @@ class Knowledge:
         
         self.ourFlagCaptured = self.commander.game.team.flag.carrier != None
         
-        self.commander.log.info("Average enemy position: " + str(self.predictAverageEnemyPosition()))
+        #self.commander.log.info("Average enemy position: " + str(self.predictAverageEnemyPosition()))
         self.lastTickTime = self.commander.game.match.timePassed
     
     """

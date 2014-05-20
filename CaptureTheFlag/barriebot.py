@@ -25,7 +25,6 @@ class BarrieCommander(Commander):
         
     def tick(self):
         """Process all the bots that are done with their orders and available for taking orders."""
-        self.logInfo()
         # The 'bots_available' list is a dynamically calculated list of bots that are done with their orders.
         for bot in self.game.bots_available:
             # Determine a place to run randomly...
@@ -59,43 +58,3 @@ class BarrieCommander(Commander):
 
             if cmd and target:
                 self.issue(cmd, bot, target, **params)
-    
-
-    def logInfo(self):
-        scoreDict = self.game.match.scores
-        ourScore = scoreDict[self.game.team.name]
-        theirScore = scoreDict[self.game.enemyTeam.name]
-        
-        events = self.game.match.combatEvents
-        
-        self.log.info("#")
-        self.log.info("Our Score:"+str(ourScore))
-        self.log.info("Their Score:"+str(theirScore))
-       # self.log.info("combatEvents:"+str(events))
-
-    def shutdown(self):
-        scoreDict = self.game.match.scores
-        ourScore = scoreDict[self.game.team.name]
-        theirScore = scoreDict[self.game.enemyTeam.name]
-        self.log.info("HI shutdown")
-        self.log.info("Our Score:"+str(ourScore))
-        self.log.info("Their Score:"+str(theirScore))
-        #random statistics
-
-        #team effectivity:
-        #score
-    
-        #number of captures
-        #number of teamwipes of enemy
-        #gamelength
-        #respawntime
-        #enemy flag carrier killed
-        
-        #bot effectivity:
-        #for each bot: number of deaths
-        #for each bot: kills
-        #for each bot: deaths
-        #for each bot: idle time
-        #for each bot: captures
-        
-        self.log.info("test")

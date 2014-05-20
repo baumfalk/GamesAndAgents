@@ -39,12 +39,11 @@ from api.vector2 import Vector2
 from knowledge import Knowledge
 import jsonpickle
 import sys
+import random
 
 def contains(area, position):
     start, finish = area
     return position.x >= start.x and position.y >= start.y and position.x <= finish.x and position.y <= finish.y
-
-    
 #
 # RULES
 # todo: maybe put this in different file
@@ -202,25 +201,57 @@ class DynamicCommander(Commander):
             
     def initializeRoles(self):
         self.log.info("Initializing roles")
+        self.dsclassAttacker = DynamicScriptingClass(self.attackerRulebase)
+        self.dsclassDefender = DynamicScriptingClass(self.defenderRulebase)
+        self.dsclassCatcher = DynamicScriptingClass(self.catcherRulebase)
         for bot in self.game.team.members:       
             if(bot.role == "attacker"):
                 self.log.info("Generating attacker script")
-                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.attackerRulebase))
+                bot.script = DynamicScriptingInstance(self.dsclassAttacker)
                 bot.script.generateScript(1)
             elif(bot.role == "defender"):
                 self.log.info("Generating defender script")
-                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.defenderRulebase))
+                bot.script = DynamicScriptingInstance(self.dsclassDefender)
                 bot.script.generateScript(1)
             elif(bot.role == "catcher"):
                 self.log.info("Generating catcher script")
-                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.catcherRulebase))
+                bot.script = DynamicScriptingInstance( self.dsclassCatcher)
                 bot.script.generateScript(1)
             else: #backup: also attacker 
-                bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.attackerRulebase))
+                bot.script = DynamicScriptingInstance( self.dsclassAttacker)
+                bot.role = "attacker"
                 bot.script.generateScript(1)
 
+    def updateWeights(self):
+        self.log.info("Updating weights!")
+        self.metaRoleScript.adjustWeights(self.metaRoleScript.calculateTeamFitness(None),self)
+        for bot in self.game.team.members:
+            fitness = bot.script.calculateAgentFitness(bot.role,None)
+            self.log.info("fitness:" + str(fitness))
+            print "old weight ", bot.script.dsclass.rulebase[0].weight
+            bot.script.dsclass.rulebase[0].weight = 100
+            bot.script.adjustWeights(fitness,self)
+            print "new weight ", bot.script.dsclass.rulebase[0].weight
+            print "newer weight ", self.attackerRulebase[0].weight
+
+    def saveWeights(self):
+        conn = open(sys.path[0]+"/dynamicscripting/attacker2.txt",'w')
+        rulebaseEncoded = jsonpickle.encode(self.dsclassAttacker.rulebase)
+        conn.write(rulebaseEncoded)
+        conn.close()
+         
+        conn = open(sys.path[0]+"/dynamicscripting/defender2.txt",'w')
+        rulebaseEncoded = jsonpickle.encode(self.defenderRulebase)
+        conn.write(rulebaseEncoded)
+        conn.close()
+        
+        conn = open(sys.path[0]+"/dynamicscripting/catcher2.txt",'w')
+        rulebaseEncoded = jsonpickle.encode(self.catcherRulebase)
+        conn.write(rulebaseEncoded)
+        conn.close()
+
     def tick(self):
-        self.log.info("Tick at time " + str(self.game.match.timePassed) + "!")
+       # self.log.info("Tick at time " + str(self.game.match.timePassed) + "!")
         
         self.knowledge.tick() #Update knowledge base
         
@@ -229,30 +260,19 @@ class DynamicCommander(Commander):
         # 1. make distributeRoles take the current distribution into account
         # 2. Let initializeRoles take currently good performing scripts for roles into account
         if self.metaSwitchScript.runRule(0,[self.statistics]):
-            self.log.info("Switching tactics")
+            self.log.info("Switching tactics and adjusting weights")
+            self.updateWeights()
             distributeRoles()
             initializeRoles()
-        
-        #todo: maybe do this at initialization?
-        #load information
-        our_flag = self.game.team.flag.position
-        their_flag = self.game.enemyTeam.flag.position
-        listFlagLocations = [our_flag,their_flag]
-        our_flag_location = self.game.team.flagScoreLocation
-        their_flag_location = self.game.team.flagScoreLocation
-        listFlagReturnLocations = [our_flag_location,their_flag_location]
+    
         # give the bots new commands
-        self.log.info("Giving orders to all the bots")
-        for bot in self.game.bots_alive:
+        #self.log.info("Giving orders to all the bots")
+        for bot in self.game.bots_available:
             bot.script.runDynamicScript([bot,self,self.knowledge])
-            #listVisibleEnemies = [b.position for b in bot.visibleEnemies]
-            #randomFreePosition = self.level.findRandomFreePositionInBox(self.level.area)
-            #hasFlag = bot.flag
-           
-            #cmd, target, desc = bot.script.runRule(0,[listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag])
-            
-            #if target:
-            #   self.issue(cmd, bot, target,description = desc)
+    
+    def shutdown(self):
+        self.updateWeights()
+        self.saveWeights()
 #                
 # dynamic scripting stuff
 #
@@ -290,7 +310,8 @@ class DynamicScriptingInstance:
             return False
         self.rules.append( rule )
         return True
-
+    
+    
     def generateScript( self, scriptsize ) :
         maxtries = 8
 
@@ -328,7 +349,20 @@ class DynamicScriptingInstance:
         for i in range(0, self.dsclass.rulecount):
             self.dsclass.rulebase[i].weight += remainder / self.dsclass.rulecount
 
-    def adjustWeights( self, fitness ):
+    def calculateTeamFitness(self, performatives):
+        """ Calculates the fitness of the team.
+        The fitness depends on whether we would have won if the game ended now.
+        """
+        return random.random()  # random fitness, todo do something sensible here
+        
+    def calculateAgentFitness(self, agentRole, performatives):
+        """ Calculates the fitness of a specific agent.
+        The fitness depends on the role of the agent (for a flag carrier flag captures are more important than kills)
+        and on several performatives (number of kills, number of deaths, team performance, etc)
+        """
+        return random.random() # random fitness, todo do something sensible here
+            
+    def adjustWeights( self, fitness, commander ):
         active = 0
         for i in range(0, self.scriptsize):
             if self.rules_active[i]:
@@ -357,6 +391,8 @@ class DynamicScriptingInstance:
             elif self.dsclass.rulebase[i].weight > maxweight:
                 remainder += self.dsclass.rulebase[i].weight - maxweight
                 self.dsclass.rulebase[i].weight = maxweight
+            self.dsclass.rulebase[i].weight *= 10
+            commander.log.info( "new weight", self.dsclass.rulebase[i].weight, " active:", self.rules_active[i])
         self.distributeRemainder( remainder )
     
     """
