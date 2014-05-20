@@ -70,13 +70,44 @@ def neverSwitch(statistics):
 
 #rules for attacker
 #todo: put all these arguments in a separate object?
-def attack(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
+"""def attack(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
     # no one to attack: explore
     if len(listVisibleEnemies) == 0:
         return (orders.Charge,randomFreePosition, "Attacker is exploring!")
     else: # attack a random enemy in sight
         return (orders.Charge, random.choice(listVisibleEnemies),"Attacker is attacking random enemy")
-
+"""
+def attack_rule_1(bot,commander,knowledgeBase):
+    if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
+        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.id + "charge to enemy flag")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False
+    
+def attack_rule_2(bot,commander,knowledgeBase):
+    if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
+        loc = knowledgeBase.nearestSideEdge(bot)
+        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to nearest side edge")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False
+      
+def attack_rule_3(bot,commander,knowledgeBase):
+    if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
+        loc = knowledgeBase.getMidsection(bot)
+        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to mid section")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False    
+ 
+def attack_rule_4(bot,commander,knowledgeBase):
+    if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
+        loc = knowledgeBase.nearestSideEdge(bot)
+        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to nearest side edge")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False
+ 
 #rules for defender
 def defend(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
     # no one to attack: return to flag
@@ -171,8 +202,7 @@ class DynamicCommander(Commander):
             
     def initializeRoles(self):
         self.log.info("Initializing roles")
-        for bot in self.game.team.members:
-            
+        for bot in self.game.team.members:       
             if(bot.role == "attacker"):
                 self.log.info("Generating attacker script")
                 bot.script = DynamicScriptingInstance(DynamicScriptingClass(self.attackerRulebase))
@@ -214,15 +244,15 @@ class DynamicCommander(Commander):
         # give the bots new commands
         self.log.info("Giving orders to all the bots")
         for bot in self.game.bots_alive:
-            listVisibleEnemies = [b.position for b in bot.visibleEnemies]
-            randomFreePosition = self.level.findRandomFreePositionInBox(self.level.area)
-            hasFlag = bot.flag
+            bot.script.runDynamicScript([bot,self,self.knowledge])
+            #listVisibleEnemies = [b.position for b in bot.visibleEnemies]
+            #randomFreePosition = self.level.findRandomFreePositionInBox(self.level.area)
+            #hasFlag = bot.flag
+           
+            #cmd, target, desc = bot.script.runRule(0,[listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag])
             
-            cmd, target, desc = bot.script.runRule(0,[listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag])
-          
-            if target:
-                self.issue(cmd, bot, target,description = desc)
-
+            #if target:
+            #   self.issue(cmd, bot, target,description = desc)
 #                
 # dynamic scripting stuff
 #
@@ -239,13 +269,13 @@ class DynamicScriptingClass:
         self.rulebase =  rulebase
         self.rulecount = len(rulebase)
         for i in range(0, self.rulecount):
-                    self.rulebase[i].index = i
-                    thismodule = sys.modules[__name__]
-                    # If a function with the string name exists in the module then store it
-                    # in the variable, we do this because the function names
-                    # are stored as strings in the rulebase
-                    if hasattr(thismodule, str(rulebase[i].func)):
-                        self.rulebase[i].func = getattr(sys.modules[__name__],str(rulebase[i].func))
+                self.rulebase[i].index = i
+                thismodule = sys.modules[__name__]
+                # If a function with the string name exists in the module then store it
+                # in the variable, we do this because the function names
+                # are stored as strings in the rulebase
+                if hasattr(thismodule, str(rulebase[i].func)):
+                    self.rulebase[i].func = getattr(sys.modules[__name__],str(rulebase[i].func))
 
 class DynamicScriptingInstance:
     """Instance using a subset of rules from the generic dynamic scripting class"""
@@ -341,9 +371,9 @@ class DynamicScriptingInstance:
     """
     Still need some tweaking w.r.t. parameters and such...
     """
-    def runDynamicScript( self ):
+    def runDynamicScript( self, parameters ):
         for i in range(0, self.scriptsize):
-            if self.rules[i].func(self, "test %d" % (i)):
+            if self.rules[i].func(*parameters):
                 rule_index = self.rules[i].index
                 self.rules_active[ rule_index ] = True
                 return # should we return here?

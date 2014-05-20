@@ -1,6 +1,7 @@
 [{
     "py/object": "dynamicscripting.Rule",
     "index": -1,
-    "weight": 1.0,
-    "func": "attack"
-}]
+    "weight": 3.0,
+    "func": "attack_rule_1"
+}
+]
