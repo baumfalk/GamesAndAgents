@@ -129,9 +129,17 @@ class Knowledge:
             avgPosition += bot.position
         return avgPosition / self.teamSize
     
+    """
+    Returns whether a certain bot (enemy or friendly) is
+    in the middle area of the level.
+    """
     def atMidsection(self,bot):
         return self.predictPosition(bot).distance(self.levelCentre) < self.commander.level.width / 2
     
+    """
+    Returns the position nearest to the edge of the level
+    to a bot.
+    """
     def nearestSideEdge(self,bot):
         botPos = self.predictPosition(bot)
         #Top edge
