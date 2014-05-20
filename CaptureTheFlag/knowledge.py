@@ -21,6 +21,7 @@ class Knowledge:
         self.lastEnemyVelocities = {}        #Last measured velocities of enemy bots.
         self.enemyInView = {}                #Whether an enemy bot is currently in view.
         self.avgEnemyBotSpawn = Vector2(0,0) #Centre of the enemy spawn area.
+		self.levelCentre = Vector2(0,0)      #Centre of the entire level.
 		self.ourFlagCaptured = False         #Our flag is currently being carried by the enemy.
     
     """
@@ -38,6 +39,8 @@ class Knowledge:
             self.lastEnemyPositions[bot] = self.avgEnemyBotSpawn
             self.lastEnemyVelocities[bot] = Vector2(0,0) #Assume they are standing still there.
             self.enemyInView[bot] = False
+		
+		self.levelCentre = Vector2(self.commander.level.width / 2,self.commander.level.height / 2)
     
     """
     Call this at every tick of the game. It will
@@ -122,3 +125,6 @@ class Knowledge:
         for bot in self.commander.game.team.members:
             avgPosition += bot.position
         return avgPosition / self.teamSize
+	
+	def atMidsection(self,bot):
+		return self.predictPosition(bot).distance(self.levelCentre) < self.commander.level.width / 2
