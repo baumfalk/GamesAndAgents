@@ -91,7 +91,7 @@ class Knowledge:
     def predictPosition(self,bot):
         if(self.lastEnemyPositions.has_key(bot)):
             return self.lastEnemyPositions[bot] + self.lastEnemyVelocities[bot] * bot.seenlast
-        else
+        else:
             return bot.position
     
     """
