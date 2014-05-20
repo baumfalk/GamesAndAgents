@@ -21,6 +21,7 @@ class Knowledge:
         self.lastEnemyVelocities = {}        #Last measured velocities of enemy bots.
         self.enemyInView = {}                #Whether an enemy bot is currently in view.
         self.avgEnemyBotSpawn = Vector2(0,0) #Centre of the enemy spawn area.
+		self.ourFlagCaptured = False         #Our flag is currently being carried by the enemy.
     
     """
     Call this after the game has been initialised.
@@ -71,6 +72,8 @@ class Knowledge:
                         self.lastEnemyVelocities[theirbot] = Vector2(0,0)
                 if(theirbot.state != BotInfo.STATE_DEAD): #If dead, their position was already changed.
                     self.lastEnemyPositions[theirbot] = theirbot.position
+		
+		self.ourFlagCaptured = self.commander.game.team.flag.carrier != None
         
         self.commander.log.info("Average enemy position: " + str(self.predictAverageEnemyPosition()))
         self.lastTickTime = self.commander.game.match.timePassed
