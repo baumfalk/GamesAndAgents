@@ -16,13 +16,13 @@ class Knowledge:
         self.commander = None #The commander of our team (to get information from).
         self.teamSize = 0     #Number of bots in a team.
         self.lastTickTime = 0 #Time of previous tick (to measure the velocities of enemy bots).
-		
+        
         self.lastEnemyPositions = {}         #Last seen locations of enemy bots.
         self.lastEnemyVelocities = {}        #Last measured velocities of enemy bots.
         self.enemyInView = {}                #Whether an enemy bot is currently in view.
         self.avgEnemyBotSpawn = Vector2(0,0) #Centre of the enemy spawn area.
-		self.levelCentre = Vector2(0,0)      #Centre of the entire level.
-		self.ourFlagCaptured = False         #Our flag is currently being carried by the enemy.
+        self.levelCentre = Vector2(0,0)      #Centre of the entire level.
+        self.ourFlagCaptured = False         #Our flag is currently being carried by the enemy.
     
     """
     Call this after the game has been initialised.
@@ -39,8 +39,8 @@ class Knowledge:
             self.lastEnemyPositions[bot] = self.avgEnemyBotSpawn
             self.lastEnemyVelocities[bot] = Vector2(0,0) #Assume they are standing still there.
             self.enemyInView[bot] = False
-		
-		self.levelCentre = Vector2(self.commander.level.width / 2,self.commander.level.height / 2)
+        
+        self.levelCentre = Vector2(self.commander.level.width / 2,self.commander.level.height / 2)
     
     """
     Call this at every tick of the game. It will
@@ -75,8 +75,8 @@ class Knowledge:
                         self.lastEnemyVelocities[theirbot] = Vector2(0,0)
                 if(theirbot.state != BotInfo.STATE_DEAD): #If dead, their position was already changed.
                     self.lastEnemyPositions[theirbot] = theirbot.position
-		
-		self.ourFlagCaptured = self.commander.game.team.flag.carrier != None
+        
+        self.ourFlagCaptured = self.commander.game.team.flag.carrier != None
         
         self.commander.log.info("Average enemy position: " + str(self.predictAverageEnemyPosition()))
         self.lastTickTime = self.commander.game.match.timePassed
@@ -89,7 +89,10 @@ class Knowledge:
     position.
     """
     def predictPosition(self,bot):
-        return self.lastEnemyPositions[bot] + self.lastEnemyVelocities[bot] * bot.seenlast
+        if(self.lastEnemyPositions.has_key(bot)):
+            return self.lastEnemyPositions[bot] + self.lastEnemyVelocities[bot] * bot.seenlast
+        else
+            return bot.position
     
     """
     Predict which enemy bot is closest to the given bot.
@@ -125,6 +128,26 @@ class Knowledge:
         for bot in self.commander.game.team.members:
             avgPosition += bot.position
         return avgPosition / self.teamSize
-	
-	def atMidsection(self,bot):
-		return self.predictPosition(bot).distance(self.levelCentre) < self.commander.level.width / 2
+    
+    def atMidsection(self,bot):
+        return self.predictPosition(bot).distance(self.levelCentre) < self.commander.level.width / 2
+    
+    def nearestSideEdge(self,bot):
+        botPos = self.predictPosition(bot)
+        #Top edge
+        distToEdge = y
+        result = Vector2(x,0)
+        #Left edge
+        if(x < distToEdge):
+            distToEdge = x
+            result = Vector2(0,y)
+        #Bottom edge
+        if(self.commander.level.height - y < distToEdge):
+            distToEdge = self.commander.level.height - y
+            result = Vector2(x,self.commander.level.height)
+        #Right edge
+        if(self.commander.level.width - x < distToEdge):
+            distToEdge = self.commander.level.width - x
+            result = Vector2(self.commander.level.width,y)
+        
+        return result
