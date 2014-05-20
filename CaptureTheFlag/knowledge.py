@@ -77,9 +77,18 @@ class Knowledge:
                     self.lastEnemyPositions[theirbot] = theirbot.position
         
         self.ourFlagCaptured = self.commander.game.team.flag.carrier != None
+       
         
         #self.commander.log.info("Average enemy position: " + str(self.predictAverageEnemyPosition()))
         self.lastTickTime = self.commander.game.match.timePassed
+
+        # Added these variables: Barend
+        self.enemyBase = self.commander.game.enemyTeam.botSpawnArea
+        if( not self.ourFlagCaptured):
+            self.enemyCarrierPos = self.commander.game.team.flag.carrier
+        if(self.commander.game.team.flag.position == self.commander.game.team.flagSpawnLocation):
+            self.flagInBase = True
+        self.flagDroppedInField =  (not self.flagInBase and not self.ourFlagCaptured)
     
     """
     Attempts to predict the current position of a
@@ -135,6 +144,14 @@ class Knowledge:
     """
     def atMidsection(self,bot):
         return self.predictPosition(bot).distance(self.levelCentre) < self.commander.level.width / 2
+
+
+    # Added this rule: Barend
+    """
+    Returns the location of the middle of your flag stand and the enemy flag return point. 
+    """
+    def getMidsection(self,bot):
+        return (self.commander.game.enemyTeam.flagScoreLocation + self.commander.game.team.flagSpawnLocation / 2)
     
     """
     Returns the position nearest to the edge of the level
