@@ -13,13 +13,14 @@ class Knowledge:
     Initialises some fields, just to be sure.
     """
     def __init__(self):
-        self.lastEnemyPositions = {}
-        self.lastEnemyVelocities = {}
-        self.enemyInView = {}
-        self.teamSize = 0
-        self.commander = None
-        self.lastTickTime = 0
-        self.avgEnemyBotSpawn = Vector2(0,0)
+        self.commander = None #The commander of our team (to get information from).
+        self.teamSize = 0     #Number of bots in a team.
+        self.lastTickTime = 0 #Time of previous tick (to measure the velocities of enemy bots).
+		
+        self.lastEnemyPositions = {}         #Last seen locations of enemy bots.
+        self.lastEnemyVelocities = {}        #Last measured velocities of enemy bots.
+        self.enemyInView = {}                #Whether an enemy bot is currently in view.
+        self.avgEnemyBotSpawn = Vector2(0,0) #Centre of the enemy spawn area.
     
     """
     Call this after the game has been initialised.
