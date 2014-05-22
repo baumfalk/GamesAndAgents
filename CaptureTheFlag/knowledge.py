@@ -76,11 +76,9 @@ class Knowledge:
                 if(theirbot.state != BotInfo.STATE_DEAD): #If dead, their position was already changed.
                     self.lastEnemyPositions[theirbot] = theirbot.position
         
-        self.ourFlagCaptured = self.commander.game.team.flag.carrier != None
-       
-        
-        #self.commander.log.info("Average enemy position: " + str(self.predictAverageEnemyPosition()))
         self.lastTickTime = self.commander.game.match.timePassed
+        
+        self.ourFlagCaptured = self.commander.game.team.flag.carrier != None
 
         # Added these variables: Barend
         self.enemyBase = self.commander.game.enemyTeam.botSpawnArea
