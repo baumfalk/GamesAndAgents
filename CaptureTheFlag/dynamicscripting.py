@@ -78,7 +78,7 @@ def neverSwitch(statistics):
 """
 def attack_rule_1(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.id + "charge to enemy flag")
+        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker " + bot.name + " charge to enemy flag")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -86,7 +86,7 @@ def attack_rule_1(bot,commander,knowledgeBase):
 def attack_rule_2(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
         loc = knowledgeBase.nearestSideEdge(bot)
-        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to nearest side edge")
+        commander.issue(orders.Charge, bot, loc,description = "Attacker " + bot.name + " charge to nearest side edge")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -94,7 +94,7 @@ def attack_rule_2(bot,commander,knowledgeBase):
 def attack_rule_3(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
         loc = knowledgeBase.getMidsection(bot)
-        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to mid section")
+        commander.issue(orders.Charge, bot, loc,description = "Attacker " + bot.name + " charge to mid section")
        # knowledgeBase.updateStatistics(things)
         return True
     return False    
@@ -102,19 +102,48 @@ def attack_rule_3(bot,commander,knowledgeBase):
 def attack_rule_4(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
         loc = knowledgeBase.nearestSideEdge(bot)
-        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to nearest side edge")
+        commander.issue(orders.Charge, bot, loc,description = "Attacker " + bot.name + " charge to nearest side edge")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
  
 #rules for defender
-def defend(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
-    # no one to attack: return to flag
-    if len(listVisibleEnemies) == 0:
-        return (orders.Defend,listFlagLocations[0], "Defender is returning to flag!")
-    else: # attack a random enemy in sight
-        return (orders.Attack, random.choice(listVisibleEnemies),"Defender is attacking random enemy")  
+def defendOurFlag(bot,commander,knowledgeBase):
+    if(bot.position.distance(commander.game.team.flag.position) < commander.level.width / 3):
+        commander.issue(orders.Attack,bot,commander.game.team.flag.position,description = "Defender " + bot.name + " intercept our flag")
+        return True
+    return False
 
+def defendTheirFlagScoreLocation(bot,commander,knowledgeBase):
+    if(knowledgeBase.ourFlagCaptured):
+        commander.issue(orders.Charge,bot,commander.game.enemyTeam.flagScoreLocation,description = "Defender " + bot.name + " charging to enemy flag location")
+        commander.issue(orders.Defend,bot,commander.game.enemyTeam.flagScoreLocation,description = "Defender " + bot.name + " occupying enemy flag location")
+        return True
+    return False
+
+def defendCampTheirBase(bot,commander,knowledgeBase):
+    if(bot.position.distance(knowledgeBase.avgEnemyBotSpawn) < commander.level.width / 3):
+        commander.issue(orders.Attack,bot,knowledgeBase.avgEnemyBotSpawn,description = "Defender " + bot.name + " camp enemy spawn point")
+        commander.issue(orders.Defend,bot,knowledgeBase.avgEnemyBotSpawn,description = "Defender " + bot.name + " camping enemy spawn point")
+        return True
+    return False
+
+def defendSpread(bot,commander,knowledgeBase):
+    nearestFriendPos = knowledgeBase.teamNearestFriend(bot).position
+    if(bot.position.distance(nearestFriendPos) < commander.level.width / 12): #Close to a friend.
+        differenceVec = bot.position - nearestFriendPos
+        differenceVec.normalize()
+        newPosition = nearestFriendPos + differenceVec * commander.level.width / 12
+        commander.issue(orders.Charge,bot,newPosition,description = "Defender " + bot.name + " spreading out.")
+        return True
+    return False
+
+def defendGetNearestEnemy(bot,commander,knowledgeBase):
+    nearestEnemyPos = knowledgeBase.predictNearestEnemy(bot).position
+    if(bot.position.distance(nearestEnemyPos) < commander.level.width / 5): #Close to an enemy.
+        commander.issue(orders.Attack,bot,nearestEnemyPos,description = "Defender " + bot.name + " approaching close enemy")
+        return True
+    return False
         
 #rules for catcher        
 def gotoflag(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):

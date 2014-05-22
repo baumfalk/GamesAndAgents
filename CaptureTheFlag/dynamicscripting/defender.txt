@@ -2,5 +2,29 @@
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "defend"
+    "func": "defendOurFlag"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "defendTheirFlagScoreLocation"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "defendCampTheirBase"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "defendSpread"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "defendGetNearestEnemy"
 }]

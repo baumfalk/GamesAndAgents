@@ -137,6 +137,23 @@ class Knowledge:
         return avgPosition / self.teamSize
     
     """
+    Returns which bot from our team is closest to the
+    specified bot.
+    """
+    def teamNearestFriend(self,mybot):
+        myPosition = mybot.position
+        nearestBot = None
+        nearestDistance = sys.float_info.max
+        for bot in self.commander.game.team.members:
+            if(bot != mybot):
+                distance = mybot.position.distance(bot.position)
+                if(distance < nearestDistance):
+                    nearestBot = bot
+                    nearestDistance = distance
+        
+        return nearestBot
+    
+    """
     Returns whether a certain bot (enemy or friendly) is
     in the middle area of the level.
     """
