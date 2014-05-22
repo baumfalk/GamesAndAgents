@@ -78,7 +78,7 @@ def neverSwitch(statistics):
 """
 def attack_rule_1(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker " + bot.name + " charge to enemy flag")
+        commander.issue(orders.Charge, bot, knowledgeBase.avgEnemyBotSpawn,description = "Attacker " + bot.name + " charge to enemy flag")
        # knowledgeBase.updateStatistics(things)
         return True
     return False

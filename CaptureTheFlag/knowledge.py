@@ -173,6 +173,8 @@ class Knowledge:
     to a bot.
     """
     def nearestSideEdge(self,bot):
+        x = bot.position.x
+        y = bot.position.y
         botPos = self.predictPosition(bot)
         #Top edge
         distToEdge = y
