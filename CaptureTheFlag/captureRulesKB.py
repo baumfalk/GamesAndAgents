@@ -149,7 +149,7 @@ def capture_rule13(bot,commander,knowledgeBase):
     if not bot.flag and commander.game.enemyTeam.flag.carrier != None:
         target = commander.game.enemyTeam.flagSpawnLocation
         path = knowledgeBase.createShortFlankingPath(bot.position,target)
-        commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge to flag spawning point from closest side")
+        commander.issue(orders.Charge,bot,path, description = "Catcher "+ bot.name + " Charge to flag spawning point from closest side")
         return True
     return False
 """
@@ -160,7 +160,7 @@ def capture_rule14(bot,commander,knowledgeBase):
     if not bot.flag and commander.game.enemyTeam.flag.carrier != None:
         target = commander.game.enemyTeam.flagSpawnLocation
         path = knowledgeBase.createLongFlankingPath(bot.position,target)
-        commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge to flag spawning point from furthest side")
+        commander.issue(orders.Charge,bot,path, description = "Catcher "+ bot.name + " Charge to flag spawning point from furthest side")
         return True
     return False
 

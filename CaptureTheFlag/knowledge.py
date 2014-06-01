@@ -79,6 +79,7 @@ class Knowledge:
         self.lastTickTime = self.commander.game.match.timePassed
         
         self.ourFlagCaptured = self.commander.game.team.flag.carrier != None
+        self.theirFlagCaptured = self.commander.game.enemyTeam.carrier != None
 
         # Added these variables: Barend
         self.enemyBase = self.commander.game.enemyTeam.botSpawnArea

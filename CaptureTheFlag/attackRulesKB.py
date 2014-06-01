@@ -73,16 +73,8 @@ def attack_rule_6(bot,commander,knowledgeBase):
         return True
     return False
 
-
 """
-This should be a meta rule
-
-7. [1] if (flag visible && no enemies around)
-    Request to become a catcher
-"""
-
-"""
-8. [0] if (our flag is in base && not in area near the midsection)
+7. [0] if (our flag is in base && not in area near the midsection)
     Move (to the midsection)
 """
 def attack_rule_7(bot,commander,knowledgeBase):
@@ -94,19 +86,104 @@ def attack_rule_7(bot,commander,knowledgeBase):
     return False
 
 """
-Also a Meta ( or possibly defend Rule)
-
-9. [0] if (at midesction and no enemies around)
-    find cover( I dont know if it is possible) and Defend  
+8. [0] if ( I'm closest to our flag carrier)
+    Move (To our flag carrier) 
 """
-            
+def attack_rule_8(bot,commander,knowledgeBase):
+    ourFlagCarrierPos = knowledgeBase.teamNearestFriend(bot).position
+    if(  ourFlagCarrierPos == commander.game.enemyTeam.flag.position):
+        commander.issue(orders.Attack, bot, ourFlagCarrierPos,description = "Attacker" + bot.id + "moving towards our flag carrier")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False
+
+"""
+9. [0] if ( I'm closest to our flag carrier)
+    Charge (To our flag carrier) 
+"""
+def attack_rule_9(bot,commander,knowledgeBase):
+    ourFlagCarrierPos = knowledgeBase.teamNearestFriend(bot).position
+    if(  ourFlagCarrierPos == commander.game.enemyTeam.flag.position):
+        commander.issue(orders.Charge, bot, ourFlagCarrierPos,description = "Attacker" + bot.id + "Charging towards our flag carrier")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False  
+
+
 """ 
-TODO: Make a helper isAround(bot) function to check if friendly bots are around.
-
-10.[0] if (midesction and no enemies around)
-    Charge closest side edge
-11.[0] if (midesction and no enemies around)
-    Move to our base
-12.[0] if (midesction and no enemies around)
-    Charge to enemy base
+10.[0] if (we have their flag)
+    Attack (towards our carrier along a short flanking path) #Try to intercept enemy flankers.
 """
+def attack_rule_10(bot,commander,knowledgeBase):
+    if(  knowledgeBase.theirFlagCaptured ):
+        ourFlagCarrierPos = commander.game.enemyTeam.flag.position
+        path = knowledgeBase.createShortFlankingPath(bot.position,ourFlagCarrierPos)
+        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.id + "trying to intercept flanking bots via short route")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False  
+
+
+"""
+11.[0] if (we have their flag)
+    Attack (towards our carrier along a long flanking path) #Try to intercept enemy flankers.
+"""
+def attack_rule_11(bot,commander,knowledgeBase):
+    if(  knowledgeBase.theirFlagCaptured ):
+        ourFlagCarrierPos = commander.game.enemyTeam.flag.position
+        path = knowledgeBase.createLongFlankingPath(bot.position,ourFlagCarrierPos)
+        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.id + "trying to intercept flanking bots via long route")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False  
+
+"""
+12.[0] if (no flags are captured)
+    Attack ( flanking via short route towards enemy flag)
+"""
+def attack_rule_12(bot,commander,knowledgeBase):
+    if( not knowledgeBase.ourFlagCaptured and not knowledgeBase.theirFlagCaptured):
+        target = commander.game.enemyTeam.flag
+        path = knowledgeBase.createShortFlankingPath(bot.position,target)
+        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.id + "Flanking via short route towards enemy flag")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False
+
+"""
+13.[0] if (no flags are captured)
+    Attack ( flanking via long route towards enemy flag)
+"""
+def attack_rule_13(bot,commander,knowledgeBase):
+    if( not knowledgeBase.ourFlagCaptured and not knowledgeBase.theirFlagCaptured):
+        target = commander.game.enemyTeam.flag
+        path = knowledgeBase.createLongFlankingPath(bot.position,target)
+        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.id + "Flanking via long route towards enemy flag")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False
+
+"""
+14.[0] if (we have their flag && i'm not the closest to our carrier)
+    Attack (towards our carrier)
+"""
+def attack_rule_14(bot,commander,knowledgeBase):
+    ourFlagCarrierPos = knowledgeBase.teamNearestFriend(bot).position
+    if(  knowledgeBase.theirFlagCaptured and not(ourFlagCarrierPos == commander.game.enemyTeam.flag.position)):
+        commander.issue(orders.Attack, bot, commander.game.enemyTeam.flag.position,description = "Attacker" + bot.id + "Attacking towards our flag carrier")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False
+
+"""
+15.[0] if (True)
+    Attack (move to nearest friend) # General "Stick together" rule.
+"""
+def attack_rule_15(bot,commander,knowledgeBase):
+    if( True ):
+        nearestFriend = knowledgeBase.teamNearestFriend(bot).position
+        commander.issue(orders.Attack, bot, nearestFriend,description = "Attacker" + bot.id + "Moving towards nearsest teammate")
+       # knowledgeBase.updateStatistics(things)
+        return True
+    return False
+
