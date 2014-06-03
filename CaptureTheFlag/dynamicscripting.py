@@ -292,18 +292,14 @@ class DynamicScriptingInstance:
         return random.random() # random fitness, todo do something sensible here
             
     def adjustWeights( self, fitness, commander ):
-        print "HOEREN"
         active = 0
         for i in range(0, self.scriptsize):
             print self.scriptsize, " ", len(self.rules_active)
             if self.rules_active[i]:
-                print "HOEREN2"
                 active += 1
 
         if active <= 0 or active >= self.dsclass.rulecount:
-            print "HOEREN3", self.dsclass.rulecount, " ", active
             return
-        print "HOEREN4"
         nonactive = self.dsclass.rulecount - active
         adjustment = self.calculateAdjustment( fitness )
         compensation = -active * adjustment / nonactive
@@ -313,7 +309,6 @@ class DynamicScriptingInstance:
         minweight = 0.1
         maxweight = 10.0
 
-        print "HOEREN5"
         for i in range(0, self.dsclass.rulecount):
             if self.rules_active[i]:
                 self.dsclass.rulebase[i].weight += adjustment
@@ -326,7 +321,6 @@ class DynamicScriptingInstance:
                 remainder += self.dsclass.rulebase[i].weight - maxweight
                 self.dsclass.rulebase[i].weight = maxweight
             self.dsclass.rulebase[i].weight *= 10
-            print "new weight", self.dsclass.rulebase[i].weight, " active:", self.rules_active[i]
             commander.log.info( "new weight", str(self.dsclass.rulebase[i].weight), " active:", str(self.rules_active[i]))
         self.distributeRemainder( remainder )
     
