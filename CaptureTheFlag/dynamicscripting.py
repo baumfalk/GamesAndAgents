@@ -135,7 +135,6 @@ class DynamicCommander(Commander):
                 bot.script = DynamicScriptingInstance(self.dsclassAttacker)
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_attacker_rule))
-                print(bot.script.rules)
             elif(bot.role == "defender"):
                 self.log.info("Generating defender script")
                 bot.script = DynamicScriptingInstance(self.dsclassDefender)
@@ -150,7 +149,6 @@ class DynamicCommander(Commander):
                 bot.script = DynamicScriptingInstance( self.dsclassAttacker)
                 bot.role = "attacker"
                 bot.script.generateScript(1)
-                bot.position.distance(self.game.match)
                 bot.script.insertInScript(Rule(rules.default_attacker_rule))
 
     def updateWeights(self):
