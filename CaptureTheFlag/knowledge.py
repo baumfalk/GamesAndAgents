@@ -6,6 +6,7 @@ about the game that could help your commander.
 
 from api.gameinfo import BotInfo
 from api.vector2 import Vector2
+import random
 import sys
 
 class Knowledge:
@@ -79,7 +80,7 @@ class Knowledge:
         self.lastTickTime = self.commander.game.match.timePassed
         
         self.ourFlagCaptured = self.commander.game.team.flag.carrier != None
-        self.theirFlagCaptured = self.commander.game.enemyTeam.carrier != None
+        self.theirFlagCaptured = self.commander.game.enemyTeam.flag.carrier != None
 
         # Added these variables: Barend
         self.enemyBase = self.commander.game.enemyTeam.botSpawnArea
@@ -308,3 +309,14 @@ class Knowledge:
                 break
 
         return path
+    
+    """
+    Returns a random direction vector.
+    """
+    def randomDirection(self):
+        while(True):
+            result = Vector2(random.random() * 2 - 1,random.random() * 2 - 1)
+            if(result.length() <= 1):
+                break
+        result.normalize()
+        return result

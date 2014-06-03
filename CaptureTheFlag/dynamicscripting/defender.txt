@@ -27,4 +27,16 @@
     "index": -1,
     "weight": 1.0,
     "func": "defendGetNearestEnemy"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "defendSpin"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "defendFlankEnemy"
 }]

@@ -144,6 +144,21 @@ def defendGetNearestEnemy(bot,commander,knowledgeBase):
         commander.issue(orders.Attack,bot,nearestEnemyPos,description = "Defender " + bot.name + " approaching close enemy")
         return True
     return False
+
+def defendSpin(bot,commander,knowledgeBase):
+    nearestFriendPos = knowledgeBase.teamNearestFriend(bot).position
+    if(bot.position.distance(nearestFriendPos) < commander.level.width / 12): #Not close to a friend.
+        commander.issue(orders.Defend,bot,knowledgeBase.randomDirection(),description = "Defender " + bot.name + " looking in a random direction")
+        return True
+    return False
+
+def defendFlankEnemy(bot,commander,knowledgeBase):
+    nearestEnemy = knowledgeBase.predictNearestEnemy(bot)
+    if(bot.position.distance(nearestEnemy.position) < commander.level.width / 8): #Close to an enemy.
+        flankpath = knowledgeBase.createShortFlankingPath(bot.position,nearestEnemy)
+        commander.issue(orders.Attack,bot,flankpath,description = "Defender " + bot.name + " flanking nearest enemy.")
+        return True
+    return False
         
 #rules for catcher        
 def gotoflag(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
