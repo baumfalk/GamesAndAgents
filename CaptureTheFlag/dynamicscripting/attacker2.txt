@@ -1,1 +1,0 @@
-[{"py/object": "dynamicscripting.Rule", "index": 0, "weight": 153.5110321044922}, {"py/object": "dynamicscripting.Rule", "index": 1, "weight": 153.5110321044922}, {"py/object": "dynamicscripting.Rule", "index": 2, "weight": 153.5110321044922}, {"py/object": "dynamicscripting.Rule", "index": 3, "weight": 153.5110321044922}]
