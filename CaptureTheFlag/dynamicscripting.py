@@ -111,7 +111,7 @@ class DynamicCommander(Commander):
         
         #script generation! Currently only one rule in the rulebase.
         self.metaRoleScript =  DynamicScriptingInstance(DynamicScriptingClass(self.metaRoleRuleBase))
-        self.metaRoleScript.generateScript(1)
+        self.metaRoleScript.generateScript(3)
         
         self.metaSwitchScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaSwitchRuleBase))
         self.metaSwitchScript.generateScript(1)
@@ -153,11 +153,14 @@ class DynamicCommander(Commander):
         for bot in self.game.team.members:
             fitness = bot.script.calculateAgentFitness(bot.role,None)
             self.log.info("fitness:" + str(fitness))
-            print "old weight ", bot.script.dsclass.rulebase[0].weight
-            bot.script.dsclass.rulebase[0].weight = 100
+            # print "fitness:" + str(fitness)
+            for ruleid in  range(len(bot.script.dsclass.rulebase)):
+                print "old weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
+            #bot.script.dsclass.rulebase[0].weight = 100
             bot.script.adjustWeights(fitness,self)
-            print "new weight ", bot.script.dsclass.rulebase[0].weight
-            print "newer weight ", self.attackerRulebase[0].weight
+            for ruleid in  range(len(bot.script.dsclass.rulebase)):
+               print "new weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
+            #print "newer weight ", self.attackerRulebase[0].weight
 
     def saveWeights(self):
         conn = open(sys.path[0]+"/dynamicscripting/attacker2.txt",'w')
@@ -214,13 +217,13 @@ class DynamicScriptingClass:
         self.rulebase =  rulebase
         self.rulecount = len(rulebase)
         for i in range(0, self.rulecount):
-                self.rulebase[i].index = i
-                rulesmodule = sys.modules["rules"]
-                # If a function with the string name exists in the module then store it
-                # in the variable, we do this because the function names
-                # are stored as strings in the rulebase
-                if hasattr(rulesmodule, str(rulebase[i].func)):
-                    self.rulebase[i].func = getattr(sys.modules["rules"],str(rulebase[i].func))
+            self.rulebase[i].index = i
+            rulesmodule = sys.modules["rules"]
+            # If a function with the string name exists in the module then store it
+            # in the variable, we do this because the function names
+            # are stored as strings in the rulebase
+            if hasattr(rulesmodule, str(rulebase[i].func)):
+                self.rulebase[i].func = getattr(sys.modules["rules"],str(rulebase[i].func))
 
 class DynamicScriptingInstance:
     """Instance using a subset of rules from the generic dynamic scripting class"""
@@ -241,6 +244,7 @@ class DynamicScriptingInstance:
         maxtries = 8
 
         self.scriptsize = scriptsize
+        self.rules_active = [False for i in range(scriptsize)]
         self.rules = []
 
         sumweights = 0
@@ -288,14 +292,18 @@ class DynamicScriptingInstance:
         return random.random() # random fitness, todo do something sensible here
             
     def adjustWeights( self, fitness, commander ):
+        print "HOEREN"
         active = 0
         for i in range(0, self.scriptsize):
+            print self.scriptsize, " ", len(self.rules_active)
             if self.rules_active[i]:
+                print "HOEREN2"
                 active += 1
 
         if active <= 0 or active >= self.dsclass.rulecount:
+            print "HOEREN3", self.dsclass.rulecount, " ", active
             return
-
+        print "HOEREN4"
         nonactive = self.dsclass.rulecount - active
         adjustment = self.calculateAdjustment( fitness )
         compensation = -active * adjustment / nonactive
@@ -305,6 +313,7 @@ class DynamicScriptingInstance:
         minweight = 0.1
         maxweight = 10.0
 
+        print "HOEREN5"
         for i in range(0, self.dsclass.rulecount):
             if self.rules_active[i]:
                 self.dsclass.rulebase[i].weight += adjustment
@@ -317,7 +326,8 @@ class DynamicScriptingInstance:
                 remainder += self.dsclass.rulebase[i].weight - maxweight
                 self.dsclass.rulebase[i].weight = maxweight
             self.dsclass.rulebase[i].weight *= 10
-            commander.log.info( "new weight", self.dsclass.rulebase[i].weight, " active:", self.rules_active[i])
+            print "new weight", self.dsclass.rulebase[i].weight, " active:", self.rules_active[i]
+            commander.log.info( "new weight", str(self.dsclass.rulebase[i].weight), " active:", str(self.rules_active[i]))
         self.distributeRemainder( remainder )
     
     """

@@ -1,3 +1,12 @@
+from api import orders
+
+def mixedAttackers(numberOfPersons):
+    extraAttackers = numberOfPersons % 3 
+    attackerList = ["attacker" for x in range(numberOfPersons/3 + extraAttackers)]
+    defenderList = ["defender" for x in range(numberOfPersons/3)]
+    catcherList = ["catcher" for x in range(numberOfPersons/3)]
+    return attackerList + defenderList + catcherList
+
 def onlyAttackers(numberOfPersons):
     return ["attacker" for x in range(numberOfPersons)]
     
@@ -6,7 +15,7 @@ def onlyDefenders(numberOfPersons):
     
 def onlyCatchers(numberOfPersons):
     print numberOfPersons
-    return ["catchers" for x in range(numberOfPersons)] 
+    return ["catcher" for x in range(numberOfPersons)] 
 
 # meta switch rules 
 def neverSwitch(statistics):
@@ -24,7 +33,7 @@ def neverSwitch(statistics):
 """
 def attack_rule_1(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.id + "charge to enemy flag")
+        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.name + "charge to enemy flag")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -36,7 +45,7 @@ def attack_rule_1(bot,commander,knowledgeBase):
 def attack_rule_2(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
         loc = knowledgeBase.nearestSideEdge(bot)
-        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to nearest side edge")
+        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.name + "charge to nearest side edge")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -48,7 +57,7 @@ def attack_rule_2(bot,commander,knowledgeBase):
 def attack_rule_3(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
         loc = knowledgeBase.getMidsection(bot)
-        commander.issue(orders.Attack, bot, loc,description = "Attacker" + bot.id + "move to mid section")
+        commander.issue(orders.Attack, bot, loc,description = "Attacker" + bot.name + "move to mid section")
        # knowledgeBase.updateStatistics(things)
         return True
     return False    
@@ -59,7 +68,7 @@ def attack_rule_3(bot,commander,knowledgeBase):
 def attack_rule_4(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
         loc = knowledgeBase.nearestSideEdge(bot)
-        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to nearest side edge")
+        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.name + "charge to nearest side edge")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -72,7 +81,7 @@ def attack_rule_4(bot,commander,knowledgeBase):
 def attack_rule_5(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured):
         loc = knowledgeBase.enemyCarrierPos
-        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to enemy carrier")
+        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.name + "charge to enemy carrier")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -84,7 +93,8 @@ def attack_rule_5(bot,commander,knowledgeBase):
 def attack_rule_6(bot,commander,knowledgeBase):
     if( not knowledgeBase.ourFlagCaptured):
         loc = knowledgeBase.enemyBase
-        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.id + "charge to enemy base")
+        print "attack rule 6: ", loc
+        commander.issue(orders.Charge, bot, loc,description = "Attacker" + bot.name + "charge to enemy base")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -96,7 +106,7 @@ def attack_rule_6(bot,commander,knowledgeBase):
 def attack_rule_7(bot,commander,knowledgeBase):
     if(knowledgeBase.flagInBase and not knowledgeBase.atMidsection(bot)):
         loc = knowledgeBase.getMidsection(bot)
-        commander.issue(orders.Attack, bot, loc,description = "Attacker" + bot.id + "moving towards midsection")
+        commander.issue(orders.Attack, bot, loc,description = "Attacker" + bot.name + "moving towards midsection")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -108,7 +118,7 @@ def attack_rule_7(bot,commander,knowledgeBase):
 def attack_rule_8(bot,commander,knowledgeBase):
     ourFlagCarrierPos = knowledgeBase.teamNearestFriend(bot).position
     if(  ourFlagCarrierPos == commander.game.enemyTeam.flag.position):
-        commander.issue(orders.Attack, bot, ourFlagCarrierPos,description = "Attacker" + bot.id + "moving towards our flag carrier")
+        commander.issue(orders.Attack, bot, ourFlagCarrierPos,description = "Attacker" + bot.name + "moving towards our flag carrier")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -120,7 +130,7 @@ def attack_rule_8(bot,commander,knowledgeBase):
 def attack_rule_9(bot,commander,knowledgeBase):
     ourFlagCarrierPos = knowledgeBase.teamNearestFriend(bot).position
     if(  ourFlagCarrierPos == commander.game.enemyTeam.flag.position):
-        commander.issue(orders.Charge, bot, ourFlagCarrierPos,description = "Attacker" + bot.id + "Charging towards our flag carrier")
+        commander.issue(orders.Charge, bot, ourFlagCarrierPos,description = "Attacker" + bot.name + "Charging towards our flag carrier")
        # knowledgeBase.updateStatistics(things)
         return True
     return False  
@@ -134,7 +144,7 @@ def attack_rule_10(bot,commander,knowledgeBase):
     if(  knowledgeBase.theirFlagCaptured ):
         ourFlagCarrierPos = commander.game.enemyTeam.flag.position
         path = knowledgeBase.createShortFlankingPath(bot.position,ourFlagCarrierPos)
-        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.id + "trying to intercept flanking bots via short route")
+        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.name + "trying to intercept flanking bots via short route")
        # knowledgeBase.updateStatistics(things)
         return True
     return False  
@@ -148,7 +158,7 @@ def attack_rule_11(bot,commander,knowledgeBase):
     if(  knowledgeBase.theirFlagCaptured ):
         ourFlagCarrierPos = commander.game.enemyTeam.flag.position
         path = knowledgeBase.createLongFlankingPath(bot.position,ourFlagCarrierPos)
-        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.id + "trying to intercept flanking bots via long route")
+        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.name + "trying to intercept flanking bots via long route")
        # knowledgeBase.updateStatistics(things)
         return True
     return False  
@@ -159,9 +169,9 @@ def attack_rule_11(bot,commander,knowledgeBase):
 """
 def attack_rule_12(bot,commander,knowledgeBase):
     if( not knowledgeBase.ourFlagCaptured and not knowledgeBase.theirFlagCaptured):
-        target = commander.game.enemyTeam.flag
+        target = commander.game.enemyTeam.flag.position
         path = knowledgeBase.createShortFlankingPath(bot.position,target)
-        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.id + "Flanking via short route towards enemy flag")
+        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.name + "Flanking via short route towards enemy flag")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -172,9 +182,9 @@ def attack_rule_12(bot,commander,knowledgeBase):
 """
 def attack_rule_13(bot,commander,knowledgeBase):
     if( not knowledgeBase.ourFlagCaptured and not knowledgeBase.theirFlagCaptured):
-        target = commander.game.enemyTeam.flag
+        target = commander.game.enemyTeam.flag.position
         path = knowledgeBase.createLongFlankingPath(bot.position,target)
-        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.id + "Flanking via long route towards enemy flag")
+        commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.name + "Flanking via long route towards enemy flag")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -186,7 +196,7 @@ def attack_rule_13(bot,commander,knowledgeBase):
 def attack_rule_14(bot,commander,knowledgeBase):
     ourFlagCarrierPos = knowledgeBase.teamNearestFriend(bot).position
     if(  knowledgeBase.theirFlagCaptured and not(ourFlagCarrierPos == commander.game.enemyTeam.flag.position)):
-        commander.issue(orders.Attack, bot, commander.game.enemyTeam.flag.position,description = "Attacker" + bot.id + "Attacking towards our flag carrier")
+        commander.issue(orders.Attack, bot, commander.game.enemyTeam.flag.position,description = "Attacker" + bot.name + "Attacking towards our flag carrier")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -198,7 +208,7 @@ def attack_rule_14(bot,commander,knowledgeBase):
 def attack_rule_15(bot,commander,knowledgeBase):
     if( True ):
         nearestFriend = knowledgeBase.teamNearestFriend(bot).position
-        commander.issue(orders.Attack, bot, nearestFriend,description = "Attacker" + bot.id + "Moving towards nearsest teammate")
+        commander.issue(orders.Attack, bot, nearestFriend,description = "Attacker" + bot.name + "Moving towards nearsest teammate")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -253,7 +263,7 @@ def defendSpin(bot,commander,knowledgeBase):
 def defendFlankEnemy(bot,commander,knowledgeBase):
     nearestEnemy = knowledgeBase.predictNearestEnemy(bot)
     if(bot.position.distance(nearestEnemy.position) < commander.level.width / 8): #Close to an enemy.
-        flankpath = knowledgeBase.createShortFlankingPath(bot.position,nearestEnemy)
+        flankpath = knowledgeBase.createShortFlankingPath(bot.position,nearestEnemy.position)
         commander.issue(orders.Attack,bot,flankpath,description = "Defender " + bot.name + " flanking nearest enemy.")
         return True
     return False

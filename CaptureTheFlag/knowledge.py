@@ -83,9 +83,9 @@ class Knowledge:
         self.theirFlagCaptured = self.commander.game.enemyTeam.flag.carrier != None
 
         # Added these variables: Barend
-        self.enemyBase = self.commander.game.enemyTeam.botSpawnArea
-        if( not self.ourFlagCaptured):
-            self.enemyCarrierPos = self.commander.game.team.flag.carrier
+        self.enemyBase = self.commander.game.enemyTeam.botSpawnArea[0] #LOL
+        if( not self.ourFlagCaptured and self.commander.game.team.flag.carrier != None ):
+            self.enemyCarrierPos = self.commander.game.team.flag.carrier.position
         if(self.commander.game.team.flag.position == self.commander.game.team.flagSpawnLocation):
             self.flagInBase = True
         self.flagDroppedInField =  (not self.flagInBase and not self.ourFlagCaptured)
