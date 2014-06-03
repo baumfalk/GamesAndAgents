@@ -40,6 +40,7 @@ from knowledge import Knowledge
 import jsonpickle
 import sys
 import random
+import rules
 
 def contains(area, position):
     start, finish = area
@@ -51,240 +52,7 @@ def contains(area, position):
  
 # meta roles rules 
 # currently just a list of strings, one string for each bot saying what role he is
-def onlyAttackers(numberOfPersons):
-    return ["attacker" for x in range(numberOfPersons)]
-    
-def onlyDefenders(numberOfPersons):
-    return ["defender" for x in range(numberOfPersons)]
-    
-def onlyCatchers(numberOfPersons):
-    print numberOfPersons
-    return ["catchers" for x in range(numberOfPersons)] 
 
-# meta switch rules 
-def neverSwitch(statistics):
-    return False
-    
-# rules for the different roles 
-
-#rules for attacker
-#todo: put all these arguments in a separate object?
-"""def attack(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
-    # no one to attack: explore
-    if len(listVisibleEnemies) == 0:
-        return (orders.Charge,randomFreePosition, "Attacker is exploring!")
-    else: # attack a random enemy in sight
-        return (orders.Charge, random.choice(listVisibleEnemies),"Attacker is attacking random enemy")
-"""
-def attack_rule_1(bot,commander,knowledgeBase):
-    if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        commander.issue(orders.Charge, bot, knowledgeBase.avgEnemyBotSpawn,description = "Attacker " + bot.name + " charge to enemy flag")
-       # knowledgeBase.updateStatistics(things)
-        return True
-    return False
-    
-def attack_rule_2(bot,commander,knowledgeBase):
-    if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        loc = knowledgeBase.nearestSideEdge(bot)
-        commander.issue(orders.Charge, bot, loc,description = "Attacker " + bot.name + " charge to nearest side edge")
-       # knowledgeBase.updateStatistics(things)
-        return True
-    return False
-      
-def attack_rule_3(bot,commander,knowledgeBase):
-    if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
-        loc = knowledgeBase.getMidsection(bot)
-        commander.issue(orders.Charge, bot, loc,description = "Attacker " + bot.name + " charge to mid section")
-       # knowledgeBase.updateStatistics(things)
-        return True
-    return False    
- 
-def attack_rule_4(bot,commander,knowledgeBase):
-    if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
-        loc = knowledgeBase.nearestSideEdge(bot)
-        commander.issue(orders.Charge, bot, loc,description = "Attacker " + bot.name + " charge to nearest side edge")
-       # knowledgeBase.updateStatistics(things)
-        return True
-    return False
- 
-#rules for defender
-def defendOurFlag(bot,commander,knowledgeBase):
-    if(bot.position.distance(commander.game.team.flag.position) < commander.level.width / 3):
-        commander.issue(orders.Attack,bot,commander.game.team.flag.position,description = "Defender " + bot.name + " intercept our flag")
-        return True
-    return False
-
-def defendTheirFlagScoreLocation(bot,commander,knowledgeBase):
-    if(knowledgeBase.ourFlagCaptured):
-        commander.issue(orders.Charge,bot,commander.game.enemyTeam.flagScoreLocation,description = "Defender " + bot.name + " charging to enemy flag location")
-        commander.issue(orders.Defend,bot,commander.game.enemyTeam.flagScoreLocation,description = "Defender " + bot.name + " occupying enemy flag location")
-        return True
-    return False
-
-def defendCampTheirBase(bot,commander,knowledgeBase):
-    if(bot.position.distance(knowledgeBase.avgEnemyBotSpawn) < commander.level.width / 3):
-        commander.issue(orders.Attack,bot,knowledgeBase.avgEnemyBotSpawn,description = "Defender " + bot.name + " camp enemy spawn point")
-        commander.issue(orders.Defend,bot,knowledgeBase.avgEnemyBotSpawn,description = "Defender " + bot.name + " camping enemy spawn point")
-        return True
-    return False
-
-def defendSpread(bot,commander,knowledgeBase):
-    nearestFriendPos = knowledgeBase.teamNearestFriend(bot).position
-    if(bot.position.distance(nearestFriendPos) < commander.level.width / 12): #Close to a friend.
-        differenceVec = bot.position - nearestFriendPos
-        differenceVec.normalize()
-        newPosition = nearestFriendPos + differenceVec * commander.level.width / 12
-        commander.issue(orders.Charge,bot,newPosition,description = "Defender " + bot.name + " spreading out.")
-        return True
-    return False
-
-def defendGetNearestEnemy(bot,commander,knowledgeBase):
-    nearestEnemyPos = knowledgeBase.predictNearestEnemy(bot).position
-    if(bot.position.distance(nearestEnemyPos) < commander.level.width / 5): #Close to an enemy.
-        commander.issue(orders.Attack,bot,nearestEnemyPos,description = "Defender " + bot.name + " approaching close enemy")
-        return True
-    return False
-
-def defendSpin(bot,commander,knowledgeBase):
-    nearestFriendPos = knowledgeBase.teamNearestFriend(bot).position
-    if(bot.position.distance(nearestFriendPos) < commander.level.width / 12): #Not close to a friend.
-        commander.issue(orders.Defend,bot,knowledgeBase.randomDirection(),description = "Defender " + bot.name + " looking in a random direction")
-        return True
-    return False
-
-def defendFlankEnemy(bot,commander,knowledgeBase):
-    nearestEnemy = knowledgeBase.predictNearestEnemy(bot)
-    if(bot.position.distance(nearestEnemy.position) < commander.level.width / 8): #Close to an enemy.
-        flankpath = knowledgeBase.createShortFlankingPath(bot.position,nearestEnemy)
-        commander.issue(orders.Attack,bot,flankpath,description = "Defender " + bot.name + " flanking nearest enemy.")
-        return True
-    return False
-        
-#rules for catcher        
-def gotoflag(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
-    # no one to attack: return to flag
-    if len(listVisibleEnemies) == 0:
-        if hasFlag: # we have the flag, return to base
-            return (orders.Charge,listFlagLocations[0], "Catcher returning flag!")
-        else: #search the flag
-            return (orders.Charge,listFlagLocations[1], "Catcher going to flag flag!")
-    else: # attack a random enemy in sight
-        return (orders.Attack, random.choice(listVisibleEnemies),"Catcher is attacking random enemy")
-		
-def capture_rule1(bot,commander,knowledgeBase):
-    if bot.flag:
-        target = commander.game.team.flagScoreLocation
-        path = knowledgeBase.createShortFlankingPath(bot.position,target)
-        commander.issue(orders.Move,bot,path, description = "Catcher "+ bot.name + " Move to scoring point from closest side")
-        return True
-    return False
-
-def capture_rule2(bot,commander,knowledgeBase):
-    if bot.flag:
-        target = commander.game.team.flagScoreLocation
-        path = knowledgeBase.createShortFlankingPath(bot.position,target)
-        commander.issue(orders.Charge,bot,path, description = "Catcher "+ bot.name + " Charge to scoring point from closest side")
-        return True
-    return False
-
-def capture_rule3(bot,commander,knowledgeBase):
-    if bot.flag:
-        target = commander.game.team.flagScoreLocation
-        commander.issue(orders.Move,bot,target, description = "Catcher "+ bot.name + " Move directly to scoring point")
-        return True
-    return False
-
-def capture_rule4(bot,commander,knowledgeBase):
-    if bot.flag:
-        target = commander.game.team.flagScoreLocation
-        commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge directly to scoring point")
-        return True
-    return False
-
-def capture_rule5(bot,commander,knowledgeBase):
-    if bot.flag:
-        target = commander.game.team.flagScoreLocation
-        path = knowledgeBase.createLongFlankingPath(bot.position,target)
-        commander.issue(orders.Move,bot,path, description = "Catcher "+ bot.name + " Move to scoring point from furthest side")
-        return True
-    return False
-
-def capture_rule6(bot,commander,knowledgeBase):
-    if bot.flag:
-        target = commander.game.team.flagScoreLocation
-        path = knowledgeBase.createLongFlankingPath(bot.position,target)
-        commander.issue(orders.Charge,bot,path, description = "Catcher "+ bot.name + " Charge to scoring point from furthest side")
-        return True
-    return False
-
-def capture_rule7(bot,commander,knowledgeBase):
-    if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
-        path = knowledgeBase.createShortFlankingPath(bot.position,target)
-        commander.issue(orders.Move,bot,path, description = "Catcher "+ bot.name + " Move to flag from closest side")
-        return True
-    return False
-
-def capture_rule8(bot,commander,knowledgeBase):
-    if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
-        path = knowledgeBase.createShortFlankingPath(bot.position,target)
-        commander.issue(orders.Charge,bot,path, description = "Catcher "+ bot.name + "Charge to flag from closest side")
-        return True
-    return False
-
-def capture_rule9(bot,commander,knowledgeBase):
-    if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
-        commander.issue(orders.Move,bot,target, description = "Catcher "+ bot.name + " Move directly to flag")
-        return True
-    return False
-
-def capture_rule10(bot,commander,knowledgeBase):
-    if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
-        commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge directly to flag")
-        return True
-    return False
-
-def capture_rule11(bot,commander,knowledgeBase):
-    if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
-        path = knowledgeBase.createLongFlankingPath(bot.position,target)
-        commander.issue(orders.Move,bot,path, description = "Catcher "+ bot.name + " Move to flag from furthest side")
-        return True
-    return False
-
-def capture_rule12(bot,commander,knowledgeBase):
-    if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
-        path = knowledgeBase.createLongFlankingPath(bot.position,target)
-        commander.issue(orders.Charge,bot,path, description = "Catcher "+ bot.name + " Charge to flag from furthest side")
-        return True
-    return False
-	
-def capture_rule13(bot,commander,knowledgeBase):
-    if not bot.flag and commander.game.enemyTeam.flag.carrier != None:
-        target = commander.game.enemyTeam.flagSpawnLocation
-        path = knowledgeBase.createShortFlankingPath(bot.position,target)
-        commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge to flag spawning point from closest side")
-        return True
-    return False
-
-def capture_rule14(bot,commander,knowledgeBase):
-    if not bot.flag and commander.game.enemyTeam.flag.carrier != None:
-        target = commander.game.enemyTeam.flagSpawnLocation
-        path = knowledgeBase.createLongFlankingPath(bot.position,target)
-        commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge to flag spawning point from furthest side")
-        return True
-    return False
-
-def capture_rule15(bot,commander,knowledgeBase):
-    if not bot.flag and knowledgeBase.ourFlagCaptured:
-        target = commander.game.enemyTeam.flagScoreLocation
-        commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge enemy's scoring point")
-        return True
-    return False
 class DynamicCommander(Commander):
     """
     A very dynamic and flexible commander ifyouknowwhatimean
@@ -343,7 +111,7 @@ class DynamicCommander(Commander):
         
         #script generation! Currently only one rule in the rulebase.
         self.metaRoleScript =  DynamicScriptingInstance(DynamicScriptingClass(self.metaRoleRuleBase))
-        self.metaRoleScript.generateScript(1)
+        self.metaRoleScript.generateScript(3)
         
         self.metaSwitchScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaSwitchRuleBase))
         self.metaSwitchScript.generateScript(1)
@@ -385,11 +153,14 @@ class DynamicCommander(Commander):
         for bot in self.game.team.members:
             fitness = bot.script.calculateAgentFitness(bot.role,None)
             self.log.info("fitness:" + str(fitness))
-            print "old weight ", bot.script.dsclass.rulebase[0].weight
-            bot.script.dsclass.rulebase[0].weight = 100
+            # print "fitness:" + str(fitness)
+            for ruleid in  range(len(bot.script.dsclass.rulebase)):
+                print "old weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
+            #bot.script.dsclass.rulebase[0].weight = 100
             bot.script.adjustWeights(fitness,self)
-            print "new weight ", bot.script.dsclass.rulebase[0].weight
-            print "newer weight ", self.attackerRulebase[0].weight
+            for ruleid in  range(len(bot.script.dsclass.rulebase)):
+               print "new weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
+            #print "newer weight ", self.attackerRulebase[0].weight
 
     def saveWeights(self):
         conn = open(sys.path[0]+"/dynamicscripting/attacker2.txt",'w')
@@ -446,13 +217,13 @@ class DynamicScriptingClass:
         self.rulebase =  rulebase
         self.rulecount = len(rulebase)
         for i in range(0, self.rulecount):
-                self.rulebase[i].index = i
-                thismodule = sys.modules[__name__]
-                # If a function with the string name exists in the module then store it
-                # in the variable, we do this because the function names
-                # are stored as strings in the rulebase
-                if hasattr(thismodule, str(rulebase[i].func)):
-                    self.rulebase[i].func = getattr(sys.modules[__name__],str(rulebase[i].func))
+            self.rulebase[i].index = i
+            rulesmodule = sys.modules["rules"]
+            # If a function with the string name exists in the module then store it
+            # in the variable, we do this because the function names
+            # are stored as strings in the rulebase
+            if hasattr(rulesmodule, str(rulebase[i].func)):
+                self.rulebase[i].func = getattr(sys.modules["rules"],str(rulebase[i].func))
 
 class DynamicScriptingInstance:
     """Instance using a subset of rules from the generic dynamic scripting class"""
@@ -473,6 +244,7 @@ class DynamicScriptingInstance:
         maxtries = 8
 
         self.scriptsize = scriptsize
+        self.rules_active = [False for i in range(scriptsize)]
         self.rules = []
 
         sumweights = 0
@@ -520,14 +292,18 @@ class DynamicScriptingInstance:
         return random.random() # random fitness, todo do something sensible here
             
     def adjustWeights( self, fitness, commander ):
+        print "HOEREN"
         active = 0
         for i in range(0, self.scriptsize):
+            print self.scriptsize, " ", len(self.rules_active)
             if self.rules_active[i]:
+                print "HOEREN2"
                 active += 1
 
         if active <= 0 or active >= self.dsclass.rulecount:
+            print "HOEREN3", self.dsclass.rulecount, " ", active
             return
-
+        print "HOEREN4"
         nonactive = self.dsclass.rulecount - active
         adjustment = self.calculateAdjustment( fitness )
         compensation = -active * adjustment / nonactive
@@ -537,6 +313,7 @@ class DynamicScriptingInstance:
         minweight = 0.1
         maxweight = 10.0
 
+        print "HOEREN5"
         for i in range(0, self.dsclass.rulecount):
             if self.rules_active[i]:
                 self.dsclass.rulebase[i].weight += adjustment
@@ -549,7 +326,8 @@ class DynamicScriptingInstance:
                 remainder += self.dsclass.rulebase[i].weight - maxweight
                 self.dsclass.rulebase[i].weight = maxweight
             self.dsclass.rulebase[i].weight *= 10
-            commander.log.info( "new weight", self.dsclass.rulebase[i].weight, " active:", self.rules_active[i])
+            print "new weight", self.dsclass.rulebase[i].weight, " active:", self.rules_active[i]
+            commander.log.info( "new weight", str(self.dsclass.rulebase[i].weight), " active:", str(self.rules_active[i]))
         self.distributeRemainder( remainder )
     
     """

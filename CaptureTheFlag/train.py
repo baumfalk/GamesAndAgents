@@ -1,4 +1,5 @@
 import os
+import sys
 cmdBasic = "simulate.py match -a -v debug -l map53"
 
 ourBot = "dynamicscripting.DynamicCommander" # {packagename}.{botname}
@@ -12,11 +13,16 @@ showdowns["examples.BalancedCommander"] = 13
 showdowns["mycmd.PlaceholderCommander"] = 12
 showdowns["SleekoCommander.SleekoCommander"] = 12
 """                            
+args = sys.argv[1:] if len(sys.argv) > 1 else []
 
 for key in showdowns.keys():
     print "Battling ", ourBot , " against ", key, "!"
     for i in range(showdowns[key]):
         print "Match [",(i+1),"/",showdowns[key],"]"
-        cmd = cmdBasic + " " + ourBot + " " + key + " --headless"
+        cmd = cmdBasic + " " + ourBot + " " + key
+        
+        if len(args) > 0 and args[0] ==  "--headless":
+			cmd += " --headless"
+		
         os.system(cmd)
     
