@@ -1,9 +1,4 @@
-[{
-    "py/object": "dynamicscripting.Rule",
-    "index": -1,
-    "weight": 1.0,
-    "func": "gotoflag"
-},
+[
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
