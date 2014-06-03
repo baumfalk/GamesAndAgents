@@ -37,8 +37,8 @@ from api.commander import Commander
 from api import orders
 from api.vector2 import Vector2
 from knowledge import Knowledge
-import jsonpickle
 import sys
+import jsonpickle
 import random
 import rules
 
@@ -134,18 +134,24 @@ class DynamicCommander(Commander):
                 self.log.info("Generating attacker script")
                 bot.script = DynamicScriptingInstance(self.dsclassAttacker)
                 bot.script.generateScript(1)
+                bot.script.insertInScript(Rule(rules.default_attacker_rule))
+                print(bot.script.rules)
             elif(bot.role == "defender"):
                 self.log.info("Generating defender script")
                 bot.script = DynamicScriptingInstance(self.dsclassDefender)
                 bot.script.generateScript(1)
+                bot.script.insertInScript(Rule(rules.default_defender_rule))
             elif(bot.role == "catcher"):
                 self.log.info("Generating catcher script")
                 bot.script = DynamicScriptingInstance( self.dsclassCatcher)
                 bot.script.generateScript(1)
+                bot.script.insertInScript(Rule(rules.default_catcher_rule))
             else: #backup: also attacker 
                 bot.script = DynamicScriptingInstance( self.dsclassAttacker)
                 bot.role = "attacker"
                 bot.script.generateScript(1)
+                bot.position.distance(self.game.match)
+                bot.script.insertInScript(Rule(rules.default_attacker_rule))
 
     def updateWeights(self):
         self.log.info("Updating weights!")
@@ -342,3 +348,4 @@ class DynamicScriptingInstance:
                 rule_index = self.rules[i].index
                 self.rules_active[ rule_index ] = True
                 return # should we return here?
+        self.rules[len(self.rules)-1].func(*parameters)
