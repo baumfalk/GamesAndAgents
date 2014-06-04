@@ -111,7 +111,7 @@ class DynamicCommander(Commander):
         
         #script generation! Currently only one rule in the rulebase.
         self.metaRoleScript =  DynamicScriptingInstance(DynamicScriptingClass(self.metaRoleRuleBase))
-        self.metaRoleScript.generateScript(3)
+        self.metaRoleScript.generateScript(1)
         
         self.metaSwitchScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaSwitchRuleBase))
         self.metaSwitchScript.generateScript(1)
@@ -134,8 +134,8 @@ class DynamicCommander(Commander):
                 self.log.info("Generating attacker script")
                 bot.script = DynamicScriptingInstance(self.dsclassAttacker)
                 bot.script.generateScript(1)
+                # add default rule
                 bot.script.insertInScript(Rule(rules.default_attacker_rule))
-                print(bot.script.rules)
             elif(bot.role == "defender"):
                 self.log.info("Generating defender script")
                 bot.script = DynamicScriptingInstance(self.dsclassDefender)
@@ -144,13 +144,14 @@ class DynamicCommander(Commander):
             elif(bot.role == "catcher"):
                 self.log.info("Generating catcher script")
                 bot.script = DynamicScriptingInstance( self.dsclassCatcher)
-                bot.script.generateScript(1)
+                bot.script.generateScript(3)
+                #for i in bot.script.rules: #to check if there are different type of rules at base
+                #    print(i.rule_type)
                 bot.script.insertInScript(Rule(rules.default_catcher_rule))
             else: #backup: also attacker 
                 bot.script = DynamicScriptingInstance( self.dsclassAttacker)
                 bot.role = "attacker"
                 bot.script.generateScript(1)
-                bot.position.distance(self.game.match)
                 bot.script.insertInScript(Rule(rules.default_attacker_rule))
 
     def updateWeights(self):
@@ -215,6 +216,7 @@ class Rule(object):
         self.func = func
         self.weight = 1.0
         self.index = -1
+        self.rule_type = 1
 
 class DynamicScriptingClass:
     """Generic Dynamic Scripting Class"""
@@ -222,6 +224,9 @@ class DynamicScriptingClass:
           
         self.rulebase =  rulebase
         self.rulecount = len(rulebase)
+        self.different_types = []   # which different types
+        self.rule_types = []        # rule types
+        self.types_num = 0          # how many different types
         for i in range(0, self.rulecount):
             self.rulebase[i].index = i
             rulesmodule = sys.modules["rules"]
@@ -230,6 +235,11 @@ class DynamicScriptingClass:
             # are stored as strings in the rulebase
             if hasattr(rulesmodule, str(rulebase[i].func)):
                 self.rulebase[i].func = getattr(sys.modules["rules"],str(rulebase[i].func))
+            # add rule type
+            self.rule_types.append(self.rulebase[i].rule_type)
+        # get unique different types e.g. [1,2,3]
+        self.different_types = list(set(self.rule_types))
+        self.types_num = len(self.different_types)
 
 class DynamicScriptingInstance:
     """Instance using a subset of rules from the generic dynamic scripting class"""
@@ -237,7 +247,7 @@ class DynamicScriptingInstance:
         self.rules = []
         self.rules_active = []
         self.scriptsize = 0
-        self.dsclass = dsclass;
+        self.dsclass = dsclass
 
     def insertInScript( self, rule ):
         if rule in self.rules:
@@ -252,29 +262,48 @@ class DynamicScriptingInstance:
         self.scriptsize = scriptsize
         self.rules_active = [False for i in range(scriptsize)]
         self.rules = []
-
-        sumweights = 0
+        # the rule types than are going to be added
+        types = []
+        # if all the rules are of the same type then we add 1
+        if self.dsclass.types_num == 1:
+            types =[1]*(scriptsize)
+        else:
+            k = 0
+            tmp_list = self.dsclass.rule_types[:] # copy the list
+            while len(types) < scriptsize and tmp_list:
+                # use mod in order to get each type once before getting the same e.g. for 3 types 1,2,3,1,2,3
+                index =  k % self.dsclass.types_num
+                if self.dsclass.different_types[index] in tmp_list: # maybe there aren't anymore rules of that type
+                    types.append(self.dsclass.different_types[index])
+                    tmp_list.pop(tmp_list.index(self.dsclass.different_types[index]))
+                k += 1
+        sumweights = [0]*self.dsclass.types_num
         for i in range(0, self.dsclass.rulecount):
-            sumweights += self.dsclass.rulebase[i].weight
+            # we calculate the weight for each rule type separately
+            sumweights[self.dsclass.rulebase[i].rule_type-1] += self.dsclass.rulebase[i].weight
             self.rules_active.append( False )
 
         for i in range(0, scriptsize):
             num_tries = 0
             lineadded = False
-
             while num_tries < maxtries and not lineadded:
                 j = 0
                 sum = 0
                 selected = False
-                fraction = random.uniform(0.0, sumweights)
-
+                # fraction depending on the sum of the weights of the rule type
+                fraction = random.uniform(0.0, sumweights[types[0]-1])
                 while not selected:
-                    sum += self.dsclass.rulebase[j].weight
-                    if sum > fraction:
+                    # we sum the weight of the same rule type
+                    if(self.dsclass.rulebase[j].rule_type == types[0]):
+                        sum += self.dsclass.rulebase[j].weight
+                    if sum > fraction and self.dsclass.rulebase[j].rule_type == types[0]:
                         selected = True
                     else:
                         j += 1
                 lineadded = self.insertInScript( self.dsclass.rulebase[j] )
+                if(lineadded):
+                    # if line added pop and go to the next rule
+                    types.pop(0)
                 num_tries += 1
 
     def calculateAdjustment( self, fitness ):
@@ -348,4 +377,5 @@ class DynamicScriptingInstance:
                 rule_index = self.rules[i].index
                 self.rules_active[ rule_index ] = True
                 return # should we return here?
+        # since there is no return then run the default rule
         self.rules[len(self.rules)-1].func(*parameters)
