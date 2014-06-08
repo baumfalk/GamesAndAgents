@@ -407,7 +407,10 @@ def defendSpread(bot,commander,knowledgeBase):
     nearestFriendPos = knowledgeBase.teamNearestFriend(bot).position
     if(bot.position.distance(nearestFriendPos) < commander.level.width / 12): #Close to a friend.
         differenceVec = bot.position - nearestFriendPos
-        differenceVec.normalize()
+        if(differenceVec.length() > 0): #Can only normalise non-zero vectors.
+            differenceVec.normalize()
+        else:
+            differenceVec = knowledgeBase.randomDirection()
         newPosition = nearestFriendPos + differenceVec * commander.level.width / 12
         commander.issue(orders.Charge,bot,newPosition,description = "Defender " + bot.name + " spreading out.")
         return True
