@@ -37,6 +37,7 @@ from api.commander import Commander
 from api import orders
 from api.vector2 import Vector2
 from knowledge import Knowledge
+from statistics import Statistics
 import sys
 import jsonpickle
 import random
@@ -59,7 +60,8 @@ class DynamicCommander(Commander):
     """
     def initialize(self):
         self.verbose = True
-        self.statistics = {"numberOfKills":0} #todo: fill this while playing
+        self.statistics = Statistics()
+        self.statistics.initialize(self)
         self.knowledge = Knowledge()
         self.knowledge.initialize(self)
         
@@ -72,20 +74,23 @@ class DynamicCommander(Commander):
         self.loadCatcherRules()
         
         # distribute the roles to the bots 
-        self.distributeRoles()
+        roleList = self.metaScript.runDynamicScript([len(self.game.team.members),self.statistics])
+        if(roleList != None):
+            self.distributeRoles(roleList)
+        else: #If none of the rules apply, use a mixed team.
+            self.distributeRoles(rules.mixedAttackers(len(self.game.team.members)))
         # and generate the corresponding scripts
         self.initializeRoles()
 
     def loadMetaRules(self):
-        self.log.info("Loading the meta role rules")
-        conn = open(sys.path[0]+"/dynamicscripting/meta_roles.txt",'r')
-        self.metaRoleRuleBase = jsonpickle.decode(conn.read())
+        self.log.info("Loading the meta rules")
+        conn = open(sys.path[0]+"/dynamicscripting/meta.txt",'r')
+        self.metaRuleBase = jsonpickle.decode(conn.read())
         conn.close()
         
-        self.log.info("Loading the meta switch rules")
-        conn = open(sys.path[0]+"/dynamicscripting/meta_switch.txt",'r')
-        self.metaSwitchRuleBase = jsonpickle.decode(conn.read())
-        conn.close()
+        # Generate an initial meta script
+        self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase))
+        self.metaScript.generateScript(3)
     
     def loadAttackerRules(self):
         self.log.info("Loading the attacker rules")
@@ -105,23 +110,12 @@ class DynamicCommander(Commander):
         self.catcherRulebase = jsonpickle.decode(conn.read())
         conn.close()
     
-    def distributeRoles(self):
+    def distributeRoles(self,roleList):
         self.log.info("Distributing the roles")
-        number_bots = len(self.game.team.members)
         
-        #script generation! Currently only one rule in the rulebase.
-        self.metaRoleScript =  DynamicScriptingInstance(DynamicScriptingClass(self.metaRoleRuleBase))
-        self.metaRoleScript.generateScript(3)
-        
-        self.metaSwitchScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaSwitchRuleBase))
-        self.metaSwitchScript.generateScript(1)
-        
-        #generate a rolelist
-        args = [number_bots]
-        roleList = self.metaRoleScript.runRule(0,args)
         self.log.info("Rolelist: "+ str(roleList))
         #assign each bot a role
-        for botIndex in range(number_bots):
+        for botIndex in range(len(roleList)):
             self.game.team.members[botIndex].role = roleList[botIndex]
             
     def initializeRoles(self):
@@ -140,20 +134,15 @@ class DynamicCommander(Commander):
                 bot.script = DynamicScriptingInstance(self.dsclassDefender)
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_defender_rule))
-            elif(bot.role == "catcher"):
+            else: #if(bot.role == "catcher"): #backup
                 self.log.info("Generating catcher script")
-                bot.script = DynamicScriptingInstance( self.dsclassCatcher)
+                bot.script = DynamicScriptingInstance(self.dsclassCatcher)
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_catcher_rule))
-            else: #backup: also attacker 
-                bot.script = DynamicScriptingInstance( self.dsclassAttacker)
-                bot.role = "attacker"
-                bot.script.generateScript(1)
-                bot.script.insertInScript(Rule(rules.default_attacker_rule))
 
     def updateWeights(self):
         self.log.info("Updating weights!")
-        self.metaRoleScript.adjustWeights(self.metaRoleScript.calculateTeamFitness(None),self)
+        self.metaScript.adjustWeights(self.metaScript.calculateTeamFitness(None),self)
         for bot in self.game.team.members:
             fitness = bot.script.calculateAgentFitness(bot.role,None)
             self.log.info("fitness:" + str(fitness))
@@ -181,21 +170,32 @@ class DynamicCommander(Commander):
         rulebaseEncoded = jsonpickle.encode(self.catcherRulebase)
         conn.write(rulebaseEncoded)
         conn.close()
+        
+        conn = open(sys.path[0]+"/dynamicscripting/meta2.txt",'w')
+        rulebaseEncoded = jsonpickle.encode(self.metaRuleBase)
+        conn.write(rulebaseEncoded)
+        conn.close()
 
     def tick(self):
        # self.log.info("Tick at time " + str(self.game.match.timePassed) + "!")
         
-        self.knowledge.tick() #Update knowledge base
+        self.statistics.tick() # Update statistics
+        self.knowledge.tick() # Update knowledge base
         
         # should the commander issue a new strategy?
         # TODO:
         # 1. make distributeRoles take the current distribution into account
         # 2. Let initializeRoles take currently good performing scripts for roles into account
-        if self.metaSwitchScript.runRule(0,[self.statistics]):
+        
+        roleList = self.metaScript.runDynamicScript([len(self.game.team.members),self.statistics])
+        if roleList != None:
             self.log.info("Switching tactics and adjusting weights")
             self.updateWeights()
-            distributeRoles()
-            initializeRoles()
+            self.distributeRoles(roleList)
+            self.initializeRoles()
+            # Generate a new script based on latest weights for the next time.
+            self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase))
+            self.metaScript.generateScript(3)
     
         # give the bots new commands
         #self.log.info("Giving orders to all the bots")
@@ -342,8 +342,9 @@ class DynamicScriptingInstance:
     """
     def runDynamicScript( self, parameters ):
         for i in range(0, self.scriptsize):
-            if self.rules[i].func(*parameters):
+            result = self.rules[i].func(*parameters)
+            if result: # For non-booleans, will not execute if "None", but will execute if not "None"!
                 rule_index = self.rules[i].index
                 self.rules_active[ rule_index ] = True
-                return # should we return here?
-        self.rules[len(self.rules)-1].func(*parameters)
+                return result
+        return self.rules[len(self.rules)-1].func(*parameters)

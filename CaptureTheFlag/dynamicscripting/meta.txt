@@ -1,0 +1,168 @@
+[{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaNeverSwitch"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaScoredDefensive"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaScoredOffensive"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaScoredCatching"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaScoredMixed"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaAheadDefensive"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaAheadOffensive"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaAheadCatching"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaAheadMixed"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaAheadSingleCatcher"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaBehindDefensive"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaBehindOffensive"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaBehindCatching"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaBehindMixed"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaSpawnAttackers"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaSpawnDefensers"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaSpawnCatchers"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaEndgameOffensive"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaEndgameDefensive"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaEndgameCatching"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaEndgameMixed"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaEndgameAllOut"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaAvengers"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaSpawnCampers"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaIronMan"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaIntercepters"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaPussy"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "metaImpatient"
+}]
