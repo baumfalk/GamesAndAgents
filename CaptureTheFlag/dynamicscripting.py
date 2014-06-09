@@ -31,6 +31,7 @@ The code flow is as follows:
 
 import random
 import os
+import math
 
 from api import gameinfo
 from api.commander import Commander
@@ -46,6 +47,14 @@ import rules
 def contains(area, position):
     start, finish = area
     return position.x >= start.x and position.y >= start.y and position.x <= finish.x and position.y <= finish.y
+
+def resetBotStats(bot):
+    bot.deaths = 0
+    bot.kills = 0
+    bot.flag_pickedup = 0
+    bot.flag_dropped = 0
+    bot.flag_captured = 0
+    bot.flag_restored = 0
 #
 # RULES
 # todo: maybe put this in different file
@@ -81,6 +90,7 @@ class DynamicCommander(Commander):
             self.distributeRoles(rules.mixedAttackers(len(self.game.team.members)))
         # and generate the corresponding scripts
         self.initializeRoles()
+        self.initializeBotStats()
 
     def loadMetaRules(self):
         self.log.info("Loading the meta rules")
@@ -140,11 +150,15 @@ class DynamicCommander(Commander):
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_catcher_rule))
 
+    def initializeBotStats(self):
+        for bot in self.game.team.members:
+            resetBotStats(bot)
+
     def updateWeights(self):
         self.log.info("Updating weights!")
-        self.metaScript.adjustWeights(self.metaScript.calculateTeamFitness(None),self)
+        self.metaScript.adjustWeights(self.metaScript.calculateTeamFitness(self.knowledge),self)
         for bot in self.game.team.members:
-            fitness = bot.script.calculateAgentFitness(bot.role,None)
+            fitness = bot.script.calculateAgentFitness(bot, self.knowledge)
             self.log.info("fitness:" + str(fitness))
             # print "fitness:" + str(fitness)
             for ruleid in  range(len(bot.script.dsclass.rulebase)):
@@ -176,11 +190,37 @@ class DynamicCommander(Commander):
         conn.write(rulebaseEncoded)
         conn.close()
 
+    def updateBotStats(self):
+        for event in self.game.match.combatEvents:
+            if event.type == event.TYPE_FLAG_RESTORED:
+                if event.subject.team == self.game.team:
+                    for bot in self.game.team.members:
+                        bot.flag_restored += 1
+                continue
+
+            if event.instigator == None:
+                continue
+            if event.instigator.team == self.game.team:
+                if event.type == event.TYPE_KILLED:
+                    event.instigator.kills += 1
+                elif event.type == event.TYPE_FLAG_PICKEDUP:
+                    event.instigator.flag_pickedup += 1
+                elif event.type == event.TYPE_FLAG_DROPPED:
+                    event.instigator.flag_dropped += 1
+                elif event.type == event.TYPE_FLAG_CAPTURED:
+                    event.instigator.flag_captured += 1
+            else:
+                if event.type == event.TYPE_KILLED:
+                    event.subject.deaths += 1
+
     def tick(self):
        # self.log.info("Tick at time " + str(self.game.match.timePassed) + "!")
         
         self.statistics.tick() # Update statistics
         self.knowledge.tick() # Update knowledge base
+
+        # update bot stats
+        self.updateBotStats()
         
         # should the commander issue a new strategy?
         # TODO:
@@ -282,18 +322,49 @@ class DynamicScriptingInstance:
         for i in range(0, self.dsclass.rulecount):
             self.dsclass.rulebase[i].weight += remainder / self.dsclass.rulecount
 
-    def calculateTeamFitness(self, performatives):
+    def calculateTeamFitness(self, knowledge):
         """ Calculates the fitness of the team.
         The fitness depends on whether we would have won if the game ended now.
         """
-        return random.random()  # random fitness, todo do something sensible here
+
+        myScore = knowledge.teamOurScore()
+        theirScore = knowledge.teamEnemyScore()
+		
+        if myScore + theirScore == 0:
+            return 0
         
-    def calculateAgentFitness(self, agentRole, performatives):
+        team_score = (myScore - theirScore) / (myScore + theirScore)
+        return team_score
+        
+    def calculateAgentFitness(self, bot, knowledge):
         """ Calculates the fitness of a specific agent.
         The fitness depends on the role of the agent (for a flag carrier flag captures are more important than kills)
         and on several performatives (number of kills, number of deaths, team performance, etc)
         """
-        return random.random() # random fitness, todo do something sensible here
+        team_fitness = self.calculateTeamFitness(knowledge)
+        
+        bot_fitness = 0
+        if(bot.role == "attacker"):
+            bot_fitness = 0.4 * (bot.kills - bot.deaths)
+            bot_fitness += 2.0 * bot.flag_captured
+            bot_fitness += 0.4 * bot.flag_pickedup - 0.2 * bot.flag_dropped
+        elif(bot.role == "defender"):
+            bot_fitness = 0.25 * (bot.kills - bot.deaths)
+            bot_fitness += 2.0 * bot.flag_restored
+        else: #if(bot.role == "catcher"): #backup
+            bot_fitness = 0.2 * (bot.kills - bot.deaths)
+            bot_fitness += 3.0 * bot.flag_captured
+            bot_fitness += 1.0 * bot.flag_pickedup - 0.3 * bot.flag_dropped
+        
+        #make sure fitness is between zero and one
+        if bot_fitness > 0:
+            bot_fitness = math.exp( -1 / bot_fitness ) 
+        elif bot_fitness < 0:
+            bot_fitness = -math.exp( 1 / bot_fitness ) 
+        #reset the stats since we don't need them anymore. This does mean no peaking into the current fitness!
+        resetBotStats(bot)
+
+        return 0.75 * bot_fitness + 0.25 * team_fitness
             
     def adjustWeights( self, fitness, commander ):
         active = 0

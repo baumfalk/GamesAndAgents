@@ -138,6 +138,22 @@ class Knowledge:
             avgPosition += bot.position
         return avgPosition / self.teamSize
     
+	"""
+    Returns the score of our team
+    """
+    def teamOurScore(self):
+        scoreDict = self.commander.game.match.scores
+        myScore = scoreDict[self.commander.game.team.name]
+        return myScore
+		
+	"""
+    Returns the score of the enemy team
+    """
+    def teamEnemyScore(self):
+        scoreDict = self.commander.game.match.scores
+        enemyScore = scoreDict[self.commander.game.enemyTeam.name]
+        return enemyScore	
+	
     """
     Returns which bot from our team is closest to the
     specified bot.
