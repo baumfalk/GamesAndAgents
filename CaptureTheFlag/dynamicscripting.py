@@ -138,6 +138,7 @@ class DynamicScriptingInstance:
         return 0.75 * bot_fitness + 0.25 * team_fitness
             
     def adjustWeights( self, fitness, commander ):
+        """ adjust the weights of the rules. Based on Spronck's paper """
         active = 0
         for i in range(0, self.scriptsize):
             print self.scriptsize, " ", len(self.rules_active)
@@ -167,22 +168,24 @@ class DynamicScriptingInstance:
                 remainder += self.dsclass.rulebase[i].weight - maxweight
                 self.dsclass.rulebase[i].weight = maxweight
             self.dsclass.rulebase[i].weight *= 10
-            commander.log.info( "new weight", str(self.dsclass.rulebase[i].weight), " active:", str(self.rules_active[i]))
+            commander.log.info( "new weight"+ str(self.dsclass.rulebase[i].weight)+ " active:"+ str(self.rules_active[i]))
         self.distributeRemainder( remainder )
     
-    """
-    run a certain rule
-    """
+ 
     def runRule(self,index, parameters):
+        """
+        run a certain rule
+        """
         rule_index = self.rules[index].index
         self.rules_active[rule_index] = True
 
         return self.rules[index].func(*parameters)
     
-    """
-    Still need some tweaking w.r.t. parameters and such...
-    """
+   
     def runDynamicScript( self, parameters):
+        """
+        Run one rule from the dynamic script.
+        """
         for i in range(0, self.scriptsize):
             
             result = self.rules[i].func(*parameters)

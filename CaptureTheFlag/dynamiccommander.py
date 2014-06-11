@@ -62,8 +62,9 @@ class DynamicCommander(Commander):
     A very dynamic and flexible commander ifyouknowwhatimean
     """
     def initialize(self):
-    """ Initializes everything that the commander needs. This includes  loading the different rulesets,
-    distributing the roles and generating scripts for the bots. """
+        """ 
+        Initializes everything that the commander needs. This includes  loading the different rulesets, distributing the roles and generating scripts for the bots.
+        """
         self.verbose = True
         self.statistics = Statistics()
         self.statistics.initialize(self)
@@ -139,6 +140,7 @@ class DynamicCommander(Commander):
         self.dsclassCatcher = DynamicScriptingClass(self.catcherRulebase)
         i = 1
         for bot in self.game.team.members:    
+            bot.id = i
             self.log.info("Bot #" + str(i) +": Generating " +bot.role+  " script")         
             if(bot.role == "attacker"):                      
                 bot.script = DynamicScriptingInstance(self.dsclassAttacker, botRole = bot.role, botNumber = i)
@@ -157,19 +159,21 @@ class DynamicCommander(Commander):
             i+=1
 
     def initializeBotStats(self):
-    """ Initializes the statistics for the bots"""
+        """ Initializes the statistics for the bots"""
         for bot in self.game.team.members:
             resetBotStats(bot)
 
     def updateWeights(self):
-        """ Updates the weights for all bots and the meta script in accordance with the 
-        procedure given in Spronck's paper."""
+        """ 
+        Updates the weights for all bots and the meta script in accordance with the 
+        procedure given in Spronck's paper.
+        """
         self.log.info("Updating weights!")
         self.metaScript.adjustWeights(self.metaScript.calculateTeamFitness(self.knowledge),self)
         # for each bot: calculate fitness and use that to adjust the weights
         for bot in self.game.team.members:
             fitness = bot.script.calculateAgentFitness(bot, self.knowledge)
-            self.log.info("fitness:" + str(fitness))
+            self.log.info("Bot #"+str(bot.id)+"["+bot.role+"] fitness:" + str(fitness))
             for ruleid in  range(len(bot.script.dsclass.rulebase)):
                 print "old weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
             bot.script.adjustWeights(fitness,self)
@@ -177,7 +181,7 @@ class DynamicCommander(Commander):
                print "new weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
 
     def saveWeights(self):
-    """ Save all the weights of the rules """
+        """ Save all the weights of the rules """
         conn = open(sys.path[0]+"/dynamicscripting/attacker2.txt",'w')
         rulebaseEncoded = jsonpickle.encode(self.dsclassAttacker.rulebase)
         conn.write(rulebaseEncoded)
@@ -223,7 +227,11 @@ class DynamicCommander(Commander):
                     event.subject.deaths += 1
 
     def tick(self):
-    """ This method is executed every game tick. It """
+        """ 
+        This method is executed every game tick. It updates the statistics, it
+        can switch the team composition and it gives new orders to the bots
+        (based on their own scripts).
+        """
        # self.log.info("Tick at time " + str(self.game.match.timePassed) + "!")
         
         self.statistics.tick() # Update statistics
