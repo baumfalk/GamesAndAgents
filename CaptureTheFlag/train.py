@@ -1,11 +1,11 @@
 import os
 import sys
-cmdBasic = "simulate.py match -a -v debug -l map53"
+cmdBasic = "python simulate.py match --viz-navigation --viz-perception -v info -l map53 "
 
 ourBot = "dynamicscripting.DynamicCommander" # {packagename}.{botname}
 
 showdowns = {} #nameofbot (str) : numberofbattles (int)
-showdowns["barriebot.BarrieCommander"] = 2
+showdowns["barriebot.BarrieCommander"] = 1
 """showdowns["examples.RandomCommander"] = 10
 showdowns["examples.GreedyCommander"] = 11
 showdowns["examples.DefenderCommander"] = 12
