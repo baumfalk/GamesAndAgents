@@ -180,11 +180,11 @@ class DynamicCommander(Commander):
         for bot in self.game.team.members:
             fitness = bot.script.calculateAgentFitness(bot, self.knowledge)
             self.log.info("Bot #"+str(bot.id)+"["+bot.role+"] fitness:" + str(fitness))
-            for ruleid in  range(len(bot.script.dsclass.rulebase)):
-                print "old weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
+            #for ruleid in  range(len(bot.script.dsclass.rulebase)):
+            #    print "old weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
             bot.script.adjustWeights(fitness,self)
-            for ruleid in  range(len(bot.script.dsclass.rulebase)):
-               print "new weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
+            # for ruleid in  range(len(bot.script.dsclass.rulebase)):
+             #  print "new weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
 
     def saveWeights(self):
         """ Save all the weights of the rules """

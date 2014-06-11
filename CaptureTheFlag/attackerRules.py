@@ -1,13 +1,15 @@
 from api import orders
-
+from api import vector2
 #General attack rules.
-
 
 def attack_rule_1(bot,commander,knowledgeBase):
     """ 1. [3] if (our flag captured && at midsection) Attack enemy scoring point """
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        commander.issue(orders.Attack, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.name + "charge to enemy flag")
-       # knowledgeBase.updateStatistics(things)
+        flagScoreLoc = commander.game.enemyTeam.flagScoreLocation
+        commander.issue(orders.Charge, bot, flagScoreLoc,description = "Attacker" + bot.name + "charge to enemy score location")
+        commander.issue(orders.Defend, bot, flagScoreLoc,description = "Attacker" + bot.name + "defend enemy score location")
+       
+       # knowledgeBase.updateStatistics(things)      
         return True
     return False
 
@@ -25,7 +27,7 @@ def attack_rule_2(bot,commander,knowledgeBase):
 def attack_rule_3(bot,commander,knowledgeBase):
     """ 3. [3] if (our flag captured && not at midsection) Charge at midsection """
     if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
-        loc = knowledgeBase.getMidsection(bot)
+        loc = knowledgeBase.getMidsection()
         commander.issue(orders.Attack, bot, loc,description = "Attacker" + bot.name + "move to mid section")
        # knowledgeBase.updateStatistics(things)
         return True
@@ -66,7 +68,7 @@ def attack_rule_6(bot,commander,knowledgeBase):
 def attack_rule_7(bot,commander,knowledgeBase):
     """ 7. [0] if (our flag is in base && not in area near the midsection) Move (to the midsection) """
     if(knowledgeBase.flagInBase and not knowledgeBase.atMidsection(bot)):
-        loc = knowledgeBase.getMidsection(bot)
+        loc = knowledgeBase.getMidsection()
         commander.issue(orders.Attack, bot, loc,description = "Attacker" + bot.name + "moving towards midsection")
        # knowledgeBase.updateStatistics(things)
         return True
@@ -162,7 +164,10 @@ def attack_rule_15(bot,commander,knowledgeBase):
 def default_attacker_rule(bot,commander,knowledgeBase):
     """ The default attacker rule. """
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.name + "charge to enemy flag")
+       flagScoreLoc = commander.game.enemyTeam.flagScoreLocation
+       commander.issue(orders.Charge, bot, flagScoreLoc,description = "Attacker" + bot.name + "charge to enemy score location")
     else:
-        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.name + "charge to enemy base")
+        location = knowledgeBase.getMidsection()
+        commander.issue(orders.Attack, bot, location,description = "Attacker" + bot.name + "attack mid section")
+       
     return True

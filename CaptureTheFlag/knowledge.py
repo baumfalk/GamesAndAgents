@@ -186,11 +186,16 @@ class Knowledge:
     def getMidsection(self):
         return (self.commander.game.enemyTeam.flagScoreLocation + self.commander.game.team.flagSpawnLocation / 2)
     
-    """
-    Returns the position nearest to the edge of the level
-    to a bot.
-    """
+    def giveAreaAroundVector(self, vector, width, height, maxWidth, maxHeight):
+        topLeftVector = Vector2(max(0,vector[0]-width), max(0,vector[1]-height))
+        bottomRightVector = Vector2(min(maxWidth,vector[0]+width), min(maxHeight,vector[1]+height))
+        
+
     def nearestSideEdge(self,bot):
+        """
+        Returns the position nearest to the edge of the level
+        to a bot.
+        """
         x = bot.position.x
         y = bot.position.y
         botPos = self.predictPosition(bot)

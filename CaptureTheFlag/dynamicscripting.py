@@ -168,7 +168,7 @@ class DynamicScriptingInstance:
                 remainder += self.dsclass.rulebase[i].weight - maxweight
                 self.dsclass.rulebase[i].weight = maxweight
             self.dsclass.rulebase[i].weight *= 10
-            commander.log.info( "new weight"+ str(self.dsclass.rulebase[i].weight)+ " active:"+ str(self.rules_active[i]))
+            
         self.distributeRemainder( remainder )
     
  

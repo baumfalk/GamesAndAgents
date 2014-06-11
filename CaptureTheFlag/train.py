@@ -1,6 +1,6 @@
 import os
 import sys
-cmdBasic = "python simulate.py match --viz-navigation --viz-perception -v info -l map53 "
+cmdBasic = "python simulate.py match --viz-navigation --viz-perception --viz-character -v info -l map53 "
 
 ourBot = "dynamiccommander.DynamicCommander" # {packagename}.{botname}
 
