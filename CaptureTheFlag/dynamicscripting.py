@@ -35,11 +35,13 @@ class DynamicScriptingClass:
 
 class DynamicScriptingInstance:
     """Instance using a subset of rules from the generic dynamic scripting class"""
-    def __init__(self, dsclass):
+    def __init__(self, dsclass,botRole = "meta", botNumber = 0):
         self.rules = []
         self.rules_active = []
         self.scriptsize = 0
         self.dsclass = dsclass;
+        self.botRole = botRole
+        self.botNumber = botNumber
 
     def printScript(self):
         i = 1
@@ -185,7 +187,7 @@ class DynamicScriptingInstance:
             
             result = self.rules[i].func(*parameters)
             if result: # For non-booleans, will not execute if "None", but will execute if not "None"!
-                print "Rule #", (i+1), " named ", self.rules[i].func.__name__, " was  executed succesfully."
+                print "Bot #", self.botNumber, "[", self.botRole, "] Rule #", (i+1), " named ", self.rules[i].func.__name__, " was  executed succesfully."
                 rule_index = self.rules[i].index
                 self.rules_active[ rule_index ] = True
                 return result

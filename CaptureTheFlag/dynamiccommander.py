@@ -56,19 +56,14 @@ def resetBotStats(bot):
     bot.flag_dropped = 0
     bot.flag_captured = 0
     bot.flag_restored = 0
-#
-# RULES
-# todo: maybe put this in different file
-#   
- 
-# meta roles rules 
-# currently just a list of strings, one string for each bot saying what role he is
 
 class DynamicCommander(Commander):
     """
     A very dynamic and flexible commander ifyouknowwhatimean
     """
     def initialize(self):
+    """ Initializes everything that the commander needs. This includes  loading the different rulesets,
+    distributing the roles and generating scripts for the bots. """
         self.verbose = True
         self.statistics = Statistics()
         self.statistics.initialize(self)
@@ -94,6 +89,7 @@ class DynamicCommander(Commander):
         self.initializeBotStats()
 
     def loadMetaRules(self):
+        """ Loads the meta rules """
         self.log.info("Loading the meta rules")
         conn = open(sys.path[0]+"/dynamicscripting/meta.txt",'r')
         self.metaRuleBase = jsonpickle.decode(conn.read())
@@ -105,24 +101,28 @@ class DynamicCommander(Commander):
         self.metaScript.printScript()
     
     def loadAttackerRules(self):
+        """ Loads the attacker rules """
         self.log.info("Loading the attacker rules")
         conn = open(sys.path[0]+"/dynamicscripting/attacker.txt",'r')
         self.attackerRulebase = jsonpickle.decode(conn.read())
         conn.close()    
         
     def loadDefenderRules(self):
+        """ Loads the defender rules """
         self.log.info("Loading the defender rules")
         conn = open(sys.path[0]+"/dynamicscripting/defender.txt",'r')
         self.defenderRulebase = jsonpickle.decode(conn.read())
         conn.close()        
 
     def loadCatcherRules(self):
+        """ Loads the catcher rules """
         self.log.info("Loading the catcher rules")
         conn = open(sys.path[0]+"/dynamicscripting/catcher.txt",'r')
         self.catcherRulebase = jsonpickle.decode(conn.read())
         conn.close()
     
     def distributeRoles(self,roleList):
+        """ distributes the roles to the bots according to a given distribution"""
         self.log.info("Distributing the roles")
         
         self.log.info("Rolelist: "+ str(roleList))
@@ -131,50 +131,53 @@ class DynamicCommander(Commander):
             self.game.team.members[botIndex].role = roleList[botIndex]
             
     def initializeRoles(self):
+        """ Initializes the bots by generating a script corresponding to their role and the rulebase
+        associated with that role."""
         self.log.info("Initializing roles")
         self.dsclassAttacker = DynamicScriptingClass(self.attackerRulebase)
         self.dsclassDefender = DynamicScriptingClass(self.defenderRulebase)
         self.dsclassCatcher = DynamicScriptingClass(self.catcherRulebase)
         i = 1
-        for bot in self.game.team.members:
-        
-            self.log.info("Bot #" + str(i) +": Generating " +bot.role+  " script")
-            i+=1
-            if(bot.role == "attacker"):      
-                bot.script = DynamicScriptingInstance(self.dsclassAttacker)
+        for bot in self.game.team.members:    
+            self.log.info("Bot #" + str(i) +": Generating " +bot.role+  " script")         
+            if(bot.role == "attacker"):                      
+                bot.script = DynamicScriptingInstance(self.dsclassAttacker, botRole = bot.role, botNumber = i)
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_attacker_rule))
             elif(bot.role == "defender"):
-                bot.script = DynamicScriptingInstance(self.dsclassDefender)
+                bot.script = DynamicScriptingInstance(self.dsclassDefender,botRole = bot.role, botNumber = i)
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_defender_rule))
             else: #if(bot.role == "catcher"): #backup
-                bot.script = DynamicScriptingInstance(self.dsclassCatcher)
+                bot.script = DynamicScriptingInstance(self.dsclassCatcher,botRole = bot.role, botNumber = i)
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_catcher_rule))
             bot.script.printScript()    
             self.log.info("")
+            i+=1
 
     def initializeBotStats(self):
+    """ Initializes the statistics for the bots"""
         for bot in self.game.team.members:
             resetBotStats(bot)
 
     def updateWeights(self):
+        """ Updates the weights for all bots and the meta script in accordance with the 
+        procedure given in Spronck's paper."""
         self.log.info("Updating weights!")
         self.metaScript.adjustWeights(self.metaScript.calculateTeamFitness(self.knowledge),self)
+        # for each bot: calculate fitness and use that to adjust the weights
         for bot in self.game.team.members:
             fitness = bot.script.calculateAgentFitness(bot, self.knowledge)
             self.log.info("fitness:" + str(fitness))
-            # print "fitness:" + str(fitness)
             for ruleid in  range(len(bot.script.dsclass.rulebase)):
                 print "old weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
-            #bot.script.dsclass.rulebase[0].weight = 100
             bot.script.adjustWeights(fitness,self)
             for ruleid in  range(len(bot.script.dsclass.rulebase)):
                print "new weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
-            #print "newer weight ", self.attackerRulebase[0].weight
 
     def saveWeights(self):
+    """ Save all the weights of the rules """
         conn = open(sys.path[0]+"/dynamicscripting/attacker2.txt",'w')
         rulebaseEncoded = jsonpickle.encode(self.dsclassAttacker.rulebase)
         conn.write(rulebaseEncoded)
@@ -196,6 +199,7 @@ class DynamicCommander(Commander):
         conn.close()
 
     def updateBotStats(self):
+        """ Update the statistics for the bots """
         for event in self.game.match.combatEvents:
             if event.type == event.TYPE_FLAG_RESTORED:
                 if event.subject.team == self.game.team:
@@ -219,6 +223,7 @@ class DynamicCommander(Commander):
                     event.subject.deaths += 1
 
     def tick(self):
+    """ This method is executed every game tick. It """
        # self.log.info("Tick at time " + str(self.game.match.timePassed) + "!")
         
         self.statistics.tick() # Update statistics
@@ -248,5 +253,6 @@ class DynamicCommander(Commander):
             bot.script.runDynamicScript([bot,self,self.knowledge])
     
     def shutdown(self):
+        """ This method is executed at the end of the game """
         self.updateWeights()
         self.saveWeights()
