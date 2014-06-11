@@ -1,0 +1,7 @@
+[{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 1.0,
+    "func": "mixedAttackers",
+	"rule_type": 1
+}]

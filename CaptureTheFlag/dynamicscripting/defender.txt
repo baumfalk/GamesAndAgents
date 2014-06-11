@@ -2,41 +2,48 @@
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "defendOurFlag"
+    "func": "defendOurFlag",
+	"rule_type": 1
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "defendTheirFlagScoreLocation"
+    "func": "defendTheirFlagScoreLocation",
+	"rule_type": 1
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "defendCampTheirBase"
+    "func": "defendCampTheirBase",
+	"rule_type": 1
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "defendSpread"
+    "func": "defendSpread",
+	"rule_type": 1
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "defendGetNearestEnemy"
+    "func": "defendGetNearestEnemy",
+	"rule_type": 1
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "defendSpin"
+    "func": "defendSpin",
+	"rule_type": 1
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "defendFlankEnemy"
+    "func": "defendFlankEnemy",
+	"rule_type": 1
 }]
