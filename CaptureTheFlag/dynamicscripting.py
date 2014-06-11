@@ -1,5 +1,14 @@
 import sys
 import random
+import math
+
+def resetBotStats(bot):
+    bot.deaths = 0
+    bot.kills = 0
+    bot.flag_pickedup = 0
+    bot.flag_dropped = 0
+    bot.flag_captured = 0
+    bot.flag_restored = 0
 #                
 # dynamic scripting stuff
 #
@@ -26,18 +35,25 @@ class DynamicScriptingClass:
 
 class DynamicScriptingInstance:
     """Instance using a subset of rules from the generic dynamic scripting class"""
-    def __init__(self, dsclass):
+    def __init__(self, dsclass,botRole = "meta", botNumber = 0):
         self.rules = []
         self.rules_active = []
         self.scriptsize = 0
         self.dsclass = dsclass;
+        self.botRole = botRole
+        self.botNumber = botNumber
 
+    def printScript(self):
+        i = 1
+        for rule in self.rules:
+            print "Rule #",i,": ",rule.func.__name__
+            i += 1
+    
     def insertInScript( self, rule ):
         if rule in self.rules:
             return False
         self.rules.append( rule )
         return True
-    
     
     def generateScript( self, scriptsize ) :
         maxtries = 8
@@ -122,6 +138,7 @@ class DynamicScriptingInstance:
         return 0.75 * bot_fitness + 0.25 * team_fitness
             
     def adjustWeights( self, fitness, commander ):
+        """ adjust the weights of the rules. Based on Spronck's paper """
         active = 0
         for i in range(0, self.scriptsize):
             print self.scriptsize, " ", len(self.rules_active)
@@ -151,25 +168,29 @@ class DynamicScriptingInstance:
                 remainder += self.dsclass.rulebase[i].weight - maxweight
                 self.dsclass.rulebase[i].weight = maxweight
             self.dsclass.rulebase[i].weight *= 10
-            commander.log.info( "new weight", str(self.dsclass.rulebase[i].weight), " active:", str(self.rules_active[i]))
+            commander.log.info( "new weight"+ str(self.dsclass.rulebase[i].weight)+ " active:"+ str(self.rules_active[i]))
         self.distributeRemainder( remainder )
     
-    """
-    run a certain rule
-    """
+ 
     def runRule(self,index, parameters):
+        """
+        run a certain rule
+        """
         rule_index = self.rules[index].index
         self.rules_active[rule_index] = True
 
         return self.rules[index].func(*parameters)
     
-    """
-    Still need some tweaking w.r.t. parameters and such...
-    """
-    def runDynamicScript( self, parameters ):
+   
+    def runDynamicScript( self, parameters):
+        """
+        Run one rule from the dynamic script.
+        """
         for i in range(0, self.scriptsize):
+            
             result = self.rules[i].func(*parameters)
             if result: # For non-booleans, will not execute if "None", but will execute if not "None"!
+                print "Bot #", self.botNumber, "[", self.botRole, "] Rule #", (i+1), " named ", self.rules[i].func.__name__, " was  executed succesfully."
                 rule_index = self.rules[i].index
                 self.rules_active[ rule_index ] = True
                 return result
