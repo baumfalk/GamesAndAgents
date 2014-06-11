@@ -2,167 +2,167 @@
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaNeverSwitch"
+    "func": "meta_rule_1"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaScoredDefensive"
+    "func": "meta_rule_2"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaScoredOffensive"
+    "func": "meta_rule_3"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaScoredCatching"
+    "func": "meta_rule_4"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaScoredMixed"
+    "func": "meta_rule_5"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaAheadDefensive"
+    "func": "meta_rule_6"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaAheadOffensive"
+    "func": "meta_rule_7"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaAheadCatching"
+    "func": "meta_rule_8"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaAheadMixed"
+    "func": "meta_rule_9"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaAheadSingleCatcher"
+    "func": "meta_rule_10"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaBehindDefensive"
+    "func": "meta_rule_11"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaBehindOffensive"
+    "func": "meta_rule_12"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaBehindCatching"
+    "func": "meta_rule_13"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaBehindMixed"
+    "func": "meta_rule_14"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaSpawnAttackers"
+    "func": "meta_rule_15"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaSpawnDefenders"
+    "func": "meta_rule_16"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaSpawnCatchers"
+    "func": "meta_rule_17"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaEndgameOffensive"
+    "func": "meta_rule_18"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaEndgameDefensive"
+    "func": "meta_rule_19"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaEndgameCatching"
+    "func": "meta_rule_20"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaEndgameMixed"
+    "func": "meta_rule_21"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaEndgameAllOut"
+    "func": "meta_rule_22"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaAvengers"
+    "func": "meta_rule_23"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaSpawnCampers"
+    "func": "meta_rule_24"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaIronMan"
+    "func": "meta_rule_25"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaIntercepters"
+    "func": "meta_rule_26"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaPussy"
+    "func": "meta_rule_27"
 },
 {
     "py/object": "dynamicscripting.Rule",
     "index": -1,
     "weight": 1.0,
-    "func": "metaImpatient"
+    "func": "meta_rule_28"
 }]
