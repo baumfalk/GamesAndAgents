@@ -102,6 +102,7 @@ class DynamicCommander(Commander):
         # Generate an initial meta script
         self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase))
         self.metaScript.generateScript(3)
+        self.metaScript.printScript()
     
     def loadAttackerRules(self):
         self.log.info("Loading the attacker rules")
@@ -134,22 +135,25 @@ class DynamicCommander(Commander):
         self.dsclassAttacker = DynamicScriptingClass(self.attackerRulebase)
         self.dsclassDefender = DynamicScriptingClass(self.defenderRulebase)
         self.dsclassCatcher = DynamicScriptingClass(self.catcherRulebase)
-        for bot in self.game.team.members:       
-            if(bot.role == "attacker"):
-                self.log.info("Generating attacker script")
+        i = 1
+        for bot in self.game.team.members:
+        
+            self.log.info("Bot #" + str(i) +": Generating " +bot.role+  " script")
+            i+=1
+            if(bot.role == "attacker"):      
                 bot.script = DynamicScriptingInstance(self.dsclassAttacker)
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_attacker_rule))
             elif(bot.role == "defender"):
-                self.log.info("Generating defender script")
                 bot.script = DynamicScriptingInstance(self.dsclassDefender)
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_defender_rule))
             else: #if(bot.role == "catcher"): #backup
-                self.log.info("Generating catcher script")
                 bot.script = DynamicScriptingInstance(self.dsclassCatcher)
                 bot.script.generateScript(1)
                 bot.script.insertInScript(Rule(rules.default_catcher_rule))
+            bot.script.printScript()    
+            self.log.info("")
 
     def initializeBotStats(self):
         for bot in self.game.team.members:

@@ -1,5 +1,14 @@
 import sys
 import random
+import math
+
+def resetBotStats(bot):
+    bot.deaths = 0
+    bot.kills = 0
+    bot.flag_pickedup = 0
+    bot.flag_dropped = 0
+    bot.flag_captured = 0
+    bot.flag_restored = 0
 #                
 # dynamic scripting stuff
 #
@@ -32,12 +41,17 @@ class DynamicScriptingInstance:
         self.scriptsize = 0
         self.dsclass = dsclass;
 
+    def printScript(self):
+        i = 1
+        for rule in self.rules:
+            print "Rule #",i,": ",rule.func.__name__
+            i += 1
+    
     def insertInScript( self, rule ):
         if rule in self.rules:
             return False
         self.rules.append( rule )
         return True
-    
     
     def generateScript( self, scriptsize ) :
         maxtries = 8
@@ -166,10 +180,12 @@ class DynamicScriptingInstance:
     """
     Still need some tweaking w.r.t. parameters and such...
     """
-    def runDynamicScript( self, parameters ):
+    def runDynamicScript( self, parameters):
         for i in range(0, self.scriptsize):
+            
             result = self.rules[i].func(*parameters)
             if result: # For non-booleans, will not execute if "None", but will execute if not "None"!
+                print "Rule #", (i+1), " named ", self.rules[i].func.__name__, " was  executed succesfully."
                 rule_index = self.rules[i].index
                 self.rules_active[ rule_index ] = True
                 return result
