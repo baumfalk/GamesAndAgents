@@ -2,7 +2,7 @@ import os
 import sys
 cmdBasic = "python simulate.py match --viz-navigation --viz-perception -v info -l map53 "
 
-ourBot = "dynamicscripting.DynamicCommander" # {packagename}.{botname}
+ourBot = "dynamiccommander.DynamicCommander" # {packagename}.{botname}
 
 showdowns = {} #nameofbot (str) : numberofbattles (int)
 showdowns["barriebot.BarrieCommander"] = 1
