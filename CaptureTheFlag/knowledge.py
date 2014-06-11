@@ -183,7 +183,7 @@ class Knowledge:
     """
     Returns the location of the middle of your flag stand and the enemy flag return point. 
     """
-    def getMidsection(self,bot):
+    def getMidsection(self):
         return (self.commander.game.enemyTeam.flagScoreLocation + self.commander.game.team.flagSpawnLocation / 2)
     
     """
