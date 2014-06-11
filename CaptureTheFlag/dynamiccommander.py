@@ -43,6 +43,10 @@ import sys
 
 import jsonpickle
 import rules
+import attackerRules
+import defenderRules
+import catcherRules
+import metaRules
 from dynamicscripting import *
 
 def contains(area, position):
@@ -88,7 +92,7 @@ class DynamicCommander(Commander):
         if(roleList != None):
             self.distributeRoles(roleList)
         else: #If none of the rules apply, use a mixed team.
-            self.distributeRoles(rules.mixedAttackers(len(self.game.team.members)))
+            self.distributeRoles(metaRules.mixedAttackers(len(self.game.team.members)))
         # and generate the corresponding scripts
         self.initializeRoles()
         self.initializeBotStats()
@@ -100,7 +104,7 @@ class DynamicCommander(Commander):
         conn.close()
         
         # Generate an initial meta script
-        self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase))
+        self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase, "metaRules"))
         self.metaScript.generateScript(3)
     
     def loadAttackerRules(self):
@@ -131,25 +135,25 @@ class DynamicCommander(Commander):
             
     def initializeRoles(self):
         self.log.info("Initializing roles")
-        self.dsclassAttacker = DynamicScriptingClass(self.attackerRulebase)
-        self.dsclassDefender = DynamicScriptingClass(self.defenderRulebase)
-        self.dsclassCatcher = DynamicScriptingClass(self.catcherRulebase)
+        self.dsclassAttacker = DynamicScriptingClass(self.attackerRulebase, "attackerRules")
+        self.dsclassDefender = DynamicScriptingClass(self.defenderRulebase, "defenderRules")
+        self.dsclassCatcher = DynamicScriptingClass(self.catcherRulebase, "catcherRules")
         for bot in self.game.team.members:       
             if(bot.role == "attacker"):
                 self.log.info("Generating attacker script")
                 bot.script = DynamicScriptingInstance(self.dsclassAttacker)
                 bot.script.generateScript(1)
-                bot.script.insertInScript(Rule(rules.default_attacker_rule))
+                bot.script.insertInScript(Rule(attackerRules.default_attacker_rule))
             elif(bot.role == "defender"):
                 self.log.info("Generating defender script")
                 bot.script = DynamicScriptingInstance(self.dsclassDefender)
                 bot.script.generateScript(1)
-                bot.script.insertInScript(Rule(rules.default_defender_rule))
+                bot.script.insertInScript(Rule(defenderRules.default_defender_rule))
             else: #if(bot.role == "catcher"): #backup
                 self.log.info("Generating catcher script")
                 bot.script = DynamicScriptingInstance(self.dsclassCatcher)
                 bot.script.generateScript(1)
-                bot.script.insertInScript(Rule(rules.default_catcher_rule))
+                bot.script.insertInScript(Rule(catcherRules.default_catcher_rule))
 
     def initializeBotStats(self):
         for bot in self.game.team.members:
@@ -235,7 +239,7 @@ class DynamicCommander(Commander):
             self.distributeRoles(roleList)
             self.initializeRoles()
             # Generate a new script based on latest weights for the next time.
-            self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase))
+            self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase, "metaRules"))
             self.metaScript.generateScript(3)
     
         # give the bots new commands

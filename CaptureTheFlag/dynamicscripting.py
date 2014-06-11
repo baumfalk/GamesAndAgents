@@ -11,18 +11,18 @@ class Rule(object):
 
 class DynamicScriptingClass:
     """Generic Dynamic Scripting Class"""
-    def __init__(self, rulebase):
+    def __init__(self, rulebase, role):
           
         self.rulebase =  rulebase
         self.rulecount = len(rulebase)
         for i in range(0, self.rulecount):
             self.rulebase[i].index = i
-            rulesmodule = sys.modules["rules"]
+            rulesmodule = sys.modules[role]
             # If a function with the string name exists in the module then store it
             # in the variable, we do this because the function names
             # are stored as strings in the rulebase
             if hasattr(rulesmodule, str(rulebase[i].func)):
-                self.rulebase[i].func = getattr(sys.modules["rules"],str(rulebase[i].func))
+                self.rulebase[i].func = getattr(sys.modules[role],str(rulebase[i].func))
 
 class DynamicScriptingInstance:
     """Instance using a subset of rules from the generic dynamic scripting class"""
