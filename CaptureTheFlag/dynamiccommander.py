@@ -102,7 +102,7 @@ class DynamicCommander(Commander):
         
         # Generate an initial meta script
         self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase, "metaRules"))
-        self.metaScript.generateScript(3)
+        self.metaScript.generateScript(5)
         self.metaScript.printScript()
     
     def loadAttackerRules(self):
@@ -148,15 +148,15 @@ class DynamicCommander(Commander):
             self.log.info("Bot #" + str(i) +": Generating " +bot.role+  " script")         
             if(bot.role == "attacker"):                      
                 bot.script = DynamicScriptingInstance(self.dsclassAttacker, botRole = bot.role, botNumber = i)
-                bot.script.generateScript(1)
+                bot.script.generateScript(6)
                 bot.script.insertInScript(Rule(attackerRules.default_attacker_rule))
             elif(bot.role == "defender"):
                 bot.script = DynamicScriptingInstance(self.dsclassDefender,botRole = bot.role, botNumber = i)
-                bot.script.generateScript(1)
+                bot.script.generateScript(6)
                 bot.script.insertInScript(Rule(defenderRules.default_defender_rule))
             else: #if(bot.role == "catcher"): #backup
                 bot.script = DynamicScriptingInstance(self.dsclassCatcher,botRole = bot.role, botNumber = i)
-                bot.script.generateScript(1)
+                bot.script.generateScript(6)
                 bot.script.insertInScript(Rule(catcherRules.default_catcher_rule))
 
                 bot.script.insertInScript(Rule(rules.default_catcher_rule))

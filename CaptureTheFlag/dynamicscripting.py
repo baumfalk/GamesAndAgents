@@ -191,6 +191,7 @@ class DynamicScriptingInstance:
             result = self.rules[i].func(*parameters)
             if result: # For non-booleans, will not execute if "None", but will execute if not "None"!
                 print "Bot #", self.botNumber, "[", self.botRole, "] Rule #", (i+1), " named ", self.rules[i].func.__name__, " was  executed succesfully."
+                print "Rule description:", self.rules[i].func.__doc__
                 rule_index = self.rules[i].index
                 self.rules_active[ rule_index ] = True
                 return result
