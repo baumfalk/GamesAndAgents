@@ -1,16 +1,6 @@
 from api import orders
 
 #rules for catcher        
-def gotoflag(listFlagLocations,listFlagReturnLocations, listVisibleEnemies,randomFreePosition, hasFlag):
-    # no one to attack: return to flag
-    if len(listVisibleEnemies) == 0:
-        if hasFlag: # we have the flag, return to base
-            return (orders.Charge,listFlagLocations[0], "Catcher returning flag!")
-        else: #search the flag
-            return (orders.Charge,listFlagLocations[1], "Catcher going to flag flag!")
-    else: # attack a random enemy in sight
-        return (orders.Attack, random.choice(listVisibleEnemies),"Catcher is attacking random enemy")
-       
 	   
 def capture_rule1(bot,commander,knowledgeBase):
     """ 1. [1] if (has flag) Move (closest edge map and approach scoring point following the edge) """ 
@@ -150,7 +140,7 @@ def capture_rule14(bot,commander,knowledgeBase):
 
 def capture_rule15(bot,commander,knowledgeBase):
     """ 15. [0] if (doesn't have flag && our flag is captured) Charge (enemy scoring point) """
-    if not bot.flag and knowledgeBase.ourFlagCaptured:
+    if not bot.flag and (self.commander.game.team.flag.carrier != None):
         target = commander.game.enemyTeam.flagScoreLocation
         commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge enemy's scoring point")
         return True
