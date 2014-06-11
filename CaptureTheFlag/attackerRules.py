@@ -153,7 +153,7 @@ def attack_rule_15(bot,commander,knowledgeBase):
     """ 15.[0] if (True) Attack (move to nearest friend) # General "Stick together" rule. """
     if( True ):
         nearestFriend = knowledgeBase.teamNearestFriend(bot).position
-        commander.issue(orders.Attack, bot, nearestFriend,description = "Attacker" + bot.name + "Moving towards nearsest teammate")
+        commander.issue(orders.Attack, bot, nearestFriend,description = "Attacker" + bot.name + "Moving towards nearest teammate")
        # knowledgeBase.updateStatistics(things)
         return True
     return False
