@@ -5,7 +5,7 @@ from api import orders
 
 def attack_rule_1(bot,commander,knowledgeBase):
     """ 1. [3] if (our flag captured && at midsection) Attack enemy scoring point """
-    if(knowledgeBase.commander.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
+    if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
         commander.issue(orders.Attack, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.name + "charge to enemy flag")
        # knowledgeBase.updateStatistics(things)
         return True
