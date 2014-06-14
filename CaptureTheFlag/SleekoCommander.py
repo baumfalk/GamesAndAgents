@@ -163,7 +163,6 @@ class SleekoCommander(Commander):
         scoreDict = self.game.match.scores
         myScore = scoreDict[self.game.team.name]
         theirScore = scoreDict[self.game.enemyTeam.name]
-        self.log.info("Woop " + str(myScore) + "-" + str(theirScore))
         # listen for events
         if len(self.game.match.combatEvents) > self.lastEventCount:
             lastCombatEvent = self.game.match.combatEvents[-1]
