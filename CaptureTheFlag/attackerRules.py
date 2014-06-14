@@ -25,7 +25,7 @@ def attack_rule_2(bot,commander,knowledgeBase):
 def attack_rule_3(bot,commander,knowledgeBase):
     """ 3. [3] if (our flag captured && not at midsection) Charge at midsection """
     if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
-        loc = knowledgeBase.getMidsection(bot)
+        loc = knowledgeBase.getMidsection()
         commander.issue(orders.Attack, bot, loc,description = "Attacker" + bot.name + "move to mid section")
        # knowledgeBase.updateStatistics(things)
         return True
@@ -66,7 +66,7 @@ def attack_rule_6(bot,commander,knowledgeBase):
 def attack_rule_7(bot,commander,knowledgeBase):
     """ 7. [0] if (our flag is in base && not in area near the midsection) Move (to the midsection) """
     if(knowledgeBase.flagInBase and not knowledgeBase.atMidsection(bot)):
-        loc = knowledgeBase.getMidsection(bot)
+        loc = knowledgeBase.getMidsection()
         commander.issue(orders.Attack, bot, loc,description = "Attacker" + bot.name + "moving towards midsection")
        # knowledgeBase.updateStatistics(things)
         return True
