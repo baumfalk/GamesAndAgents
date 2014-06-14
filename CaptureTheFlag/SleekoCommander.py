@@ -25,7 +25,7 @@ from api.vector2 import Vector2
 
 # Import other modules
 import random
-import png # for writing debug pngs
+#import png # for writing debug pngs
 import networkx as nx # for graphs
 import itertools
 import math
