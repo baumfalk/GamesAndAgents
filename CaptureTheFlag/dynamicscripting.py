@@ -141,7 +141,6 @@ class DynamicScriptingInstance:
         """ adjust the weights of the rules. Based on Spronck's paper """
         active = 0
         for i in range(0, self.scriptsize):
-            print self.scriptsize, " ", len(self.rules_active)
             if self.rules_active[i]:
                 active += 1
 
@@ -166,9 +165,7 @@ class DynamicScriptingInstance:
                 self.dsclass.rulebase[i].weight = minweight
             elif self.dsclass.rulebase[i].weight > maxweight:
                 remainder += self.dsclass.rulebase[i].weight - maxweight
-                self.dsclass.rulebase[i].weight = maxweight
-            self.dsclass.rulebase[i].weight *= 10
-            commander.log.info( "new weight"+ str(self.dsclass.rulebase[i].weight)+ " active:"+ str(self.rules_active[i]))
+                self.dsclass.rulebase[i].weight = maxweight        
         self.distributeRemainder( remainder )
     
  

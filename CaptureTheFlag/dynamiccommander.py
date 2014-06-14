@@ -148,15 +148,15 @@ class DynamicCommander(Commander):
             self.log.info("Bot #" + str(i) +": Generating " +bot.role+  " script")         
             if(bot.role == "attacker"):                      
                 bot.script = DynamicScriptingInstance(self.dsclassAttacker, botRole = bot.role, botNumber = i)
-                bot.script.generateScript(6)
+                bot.script.generateScript(4)
                 bot.script.insertInScript(Rule(attackerRules.default_attacker_rule))
             elif(bot.role == "defender"):
                 bot.script = DynamicScriptingInstance(self.dsclassDefender,botRole = bot.role, botNumber = i)
-                bot.script.generateScript(6)
+                bot.script.generateScript(4)
                 bot.script.insertInScript(Rule(defenderRules.default_defender_rule))
             else: #if(bot.role == "catcher"): #backup
                 bot.script = DynamicScriptingInstance(self.dsclassCatcher,botRole = bot.role, botNumber = i)
-                bot.script.generateScript(6)
+                bot.script.generateScript(4)
                 bot.script.insertInScript(Rule(catcherRules.default_catcher_rule))
 
                 bot.script.insertInScript(Rule(rules.default_catcher_rule))
@@ -180,34 +180,36 @@ class DynamicCommander(Commander):
         for bot in self.game.team.members:
             fitness = bot.script.calculateAgentFitness(bot, self.knowledge)
             self.log.info("Bot #"+str(bot.id)+"["+bot.role+"] fitness:" + str(fitness))
-            for ruleid in  range(len(bot.script.dsclass.rulebase)):
-                print "old weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
+            #for ruleid in  range(len(bot.script.dsclass.rulebase)):
+            #    print "old weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
             bot.script.adjustWeights(fitness,self)
-            for ruleid in  range(len(bot.script.dsclass.rulebase)):
-               print "new weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
+           # for ruleid in  range(len(bot.script.dsclass.rulebase)):
+             #  print "new weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
 
     def saveWeights(self):
         """ Save all the weights of the rules """
-        conn = open(sys.path[0]+"/dynamicscripting/attacker2.txt",'w')
-        rulebaseEncoded = jsonpickle.encode(self.dsclassAttacker.rulebase)
-        conn.write(rulebaseEncoded)
-        conn.close()
-         
-        conn = open(sys.path[0]+"/dynamicscripting/defender2.txt",'w')
-        rulebaseEncoded = jsonpickle.encode(self.defenderRulebase)
-        conn.write(rulebaseEncoded)
-        conn.close()
-        
-        conn = open(sys.path[0]+"/dynamicscripting/catcher2.txt",'w')
-        rulebaseEncoded = jsonpickle.encode(self.catcherRulebase)
-        conn.write(rulebaseEncoded)
-        conn.close()
-        
-        conn = open(sys.path[0]+"/dynamicscripting/meta2.txt",'w')
-        rulebaseEncoded = jsonpickle.encode(self.metaRuleBase)
+        self.saveWeightsRulebase(self.attackerRulebase,"attacker") 
+        self.saveWeightsRulebase(self.defenderRulebase,"defender")
+        self.saveWeightsRulebase(self.catcherRulebase,"catcher")
+        self.saveWeightsRulebase(self.metaRuleBase,"meta")
+
+    def saveWeightsRulebase(self, rulebase, name):  
+        conn = open(sys.path[0]+"/dynamicscripting/"+name+".txt",'w')
+        funcBackup = []
+        # replace function by function names
+        for rule in rulebase:
+            funcBackup.append(rule.func)
+            rule.func = rule.func.__name__
+        rulebaseEncoded = jsonpickle.encode(rulebase)
         conn.write(rulebaseEncoded)
         conn.close()
 
+        # put them back
+        for i  in range(len(rulebase)):
+           rulebase[i].func = funcBackup[i]
+      
+
+        
     def updateBotStats(self):
         """ Update the statistics for the bots """
         for event in self.game.match.combatEvents:
