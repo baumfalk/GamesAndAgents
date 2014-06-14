@@ -254,7 +254,12 @@ class DynamicCommander(Commander):
         # 2. Let initializeRoles take currently good performing scripts for roles into account
         
         roleList = self.metaScript.runDynamicScript([len(self.game.team.members),self.statistics])
-        if roleList != None:
+        hasFlag = False
+        for bot in self.game.team.members:
+            if bot.flag:
+                hasFlag = True
+                break
+        if roleList != None and not hasFlag:
             self.log.info("Switching tactics and adjusting weights")
             self.updateWeights()
             self.distributeRoles(roleList)

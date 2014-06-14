@@ -1,12 +1,14 @@
 from api import orders
-
+from api import vector2
 #General attack rules.
-
 
 def attack_rule_1(bot,commander,knowledgeBase):
     """ 1. [3] if (our flag captured && at midsection) Attack enemy scoring point """
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        commander.issue(orders.Attack, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.name + "charge to enemy flag")
+        flagScoreLoc = commander.game.enemyTeam.flagScoreLocation
+        commander.issue(orders.Charge, bot, flagScoreLoc,description = "Attacker" + bot.name + "charge to enemy score location")
+        commander.issue(orders.Defend, bot, flagScoreLoc,description = "Attacker" + bot.name + "defend enemy score location")
+       
        # knowledgeBase.updateStatistics(things)
         return True
     return False
@@ -29,9 +31,9 @@ def attack_rule_3(bot,commander,knowledgeBase):
         commander.issue(orders.Attack, bot, loc,description = "Attacker" + bot.name + "move to mid section")
        # knowledgeBase.updateStatistics(things)
         return True
-    return False    
+    return False
 
-	
+
 def attack_rule_4(bot,commander,knowledgeBase):
     """ 4. [3] if (our flag captured && not at midsection) Charge (atclosest side edges) """
     if(knowledgeBase.ourFlagCaptured and not knowledgeBase.atMidsection(bot)):
@@ -76,7 +78,7 @@ def attack_rule_7(bot,commander,knowledgeBase):
 def attack_rule_8(bot,commander,knowledgeBase):
     """ 8. [0] if ( I'm closest to our flag carrier) Move (To our flag carrier) """
     ourFlagCarrierPos = knowledgeBase.teamNearestFriend(bot).position
-    if(  ourFlagCarrierPos == commander.game.enemyTeam.flag.position):
+    if( ourFlagCarrierPos == commander.game.enemyTeam.flag.position):
         commander.issue(orders.Attack, bot, ourFlagCarrierPos,description = "Attacker" + bot.name + "moving towards our flag carrier")
        # knowledgeBase.updateStatistics(things)
         return True
@@ -86,35 +88,35 @@ def attack_rule_8(bot,commander,knowledgeBase):
 def attack_rule_9(bot,commander,knowledgeBase):
     """ 9. [0] if ( I'm closest to our flag carrier) Charge (To our flag carrier) """
     ourFlagCarrierPos = knowledgeBase.teamNearestFriend(bot).position
-    if(  ourFlagCarrierPos == commander.game.enemyTeam.flag.position):
+    if( ourFlagCarrierPos == commander.game.enemyTeam.flag.position):
         commander.issue(orders.Charge, bot, ourFlagCarrierPos,description = "Attacker" + bot.name + "Charging towards our flag carrier")
        # knowledgeBase.updateStatistics(things)
         return True
-    return False  
+    return False
 
 
 
 def attack_rule_10(bot,commander,knowledgeBase):
     """ 10.[0] if (we have their flag) Attack (towards our carrier along a short flanking path) #Try to intercept enemy flankers. """
-    if(  knowledgeBase.theirFlagCaptured ):
+    if( knowledgeBase.theirFlagCaptured ):
         ourFlagCarrierPos = commander.game.enemyTeam.flag.position
         path = knowledgeBase.createShortFlankingPath(bot.position,ourFlagCarrierPos)
         commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.name + "trying to intercept flanking bots via short route")
        # knowledgeBase.updateStatistics(things)
         return True
-    return False  
+    return False
 
 
 
 def attack_rule_11(bot,commander,knowledgeBase):
     """ 11.[0] if (we have their flag) Attack (towards our carrier along a long flanking path) #Try to intercept enemy flankers. """
-    if(  knowledgeBase.theirFlagCaptured ):
+    if( knowledgeBase.theirFlagCaptured ):
         ourFlagCarrierPos = commander.game.enemyTeam.flag.position
         path = knowledgeBase.createLongFlankingPath(bot.position,ourFlagCarrierPos)
         commander.issue(orders.Attack, bot, path,description = "Attacker" + bot.name + "trying to intercept flanking bots via long route")
        # knowledgeBase.updateStatistics(things)
         return True
-    return False  
+    return False
 
 
 def attack_rule_12(bot,commander,knowledgeBase):
@@ -142,7 +144,7 @@ def attack_rule_13(bot,commander,knowledgeBase):
 def attack_rule_14(bot,commander,knowledgeBase):
     """ 14.[0] if (we have their flag && i'm not the closest to our carrier) Attack (towards our carrier) """
     ourFlagCarrierPos = knowledgeBase.teamNearestFriend(bot).position
-    if(  knowledgeBase.theirFlagCaptured and not(ourFlagCarrierPos == commander.game.enemyTeam.flag.position)):
+    if( knowledgeBase.theirFlagCaptured and not(ourFlagCarrierPos == commander.game.enemyTeam.flag.position)):
         commander.issue(orders.Attack, bot, commander.game.enemyTeam.flag.position,description = "Attacker" + bot.name + "Attacking towards our flag carrier")
        # knowledgeBase.updateStatistics(things)
         return True
@@ -157,12 +159,15 @@ def attack_rule_15(bot,commander,knowledgeBase):
        # knowledgeBase.updateStatistics(things)
         return True
     return False
-	
+
 
 def default_attacker_rule(bot,commander,knowledgeBase):
     """ The default attacker rule. """
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.name + "charge to enemy flag")
+       flagScoreLoc = commander.game.enemyTeam.flagScoreLocation
+       commander.issue(orders.Charge, bot, flagScoreLoc,description = "Attacker" + bot.name + "charge to enemy score location")
     else:
-        commander.issue(orders.Charge, bot, knowledgeBase.enemyBase,description = "Attacker" + bot.name + "charge to enemy base")
+        location = knowledgeBase.getMidsection()
+        commander.issue(orders.Attack, bot, location,description = "Attacker" + bot.name + "attack mid section")
+       
     return True
