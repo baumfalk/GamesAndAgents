@@ -1,18 +1,20 @@
 import os
 import sys
-cmdBasic = "python simulate.py match -a --viz-navigation --viz-perception --viz-character -v info -l map53  "
+cmdBasic = "python simulate.py match -a --viz-navigation --viz-perception --viz-character -v info "
 
 ourBot = "dynamiccommander.DynamicCommander" # {packagename}.{botname}
 
 showdowns = {} #nameofbot (str) : numberofbattles (int)
-showdowns["barriebot.BarrieCommander"] = 10
+#showdowns["barriebot.BarrieCommander"] = 10
 """showdowns["examples.RandomCommander"] = 10
 showdowns["examples.GreedyCommander"] = 11
 showdowns["examples.DefenderCommander"] = 12
 showdowns["examples.BalancedCommander"] = 13
-showdowns["mycmd.PlaceholderCommander"] = 12
 """
-#showdowns["SleekoCommander.SleekoCommander"] = 10
+showdowns["examples.RandomCommander"] = 3
+showdowns["mycmd.PlaceholderCommander"] = 3
+
+showdowns["SleekoCommander.SleekoCommander"] = 3
 
 args = sys.argv[1:] if len(sys.argv) > 1 else []
 

@@ -4,7 +4,7 @@ from api import orders
 
 def defend_rule_1(bot,commander,knowledgeBase):
     """ 1. if (flag is close) Move (to flag) """
-    if(bot.position.distance(commander.game.team.flag.position) < commander.level.width / 3):
+    if(bot.position.distance(commander.game.team.flag.position) < commander.level.width / 3 and knowledgeBase.ourFlagCaptured):
         commander.issue(orders.Attack,bot,commander.game.team.flag.position,description = "Defender " + bot.name + " intercept our flag")
         return True
     return False

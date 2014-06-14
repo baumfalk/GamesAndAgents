@@ -262,7 +262,14 @@ class DynamicCommander(Commander):
             # Generate a new script based on latest weights for the next time.
             self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase, "metaRules"))
             self.metaScript.generateScript(3)
-    
+        
+        for bot in self.game.team.members:
+            if bot.flag is not None and bot.role != "catcher":
+                bot.role = "catcher"
+                bot.script = DynamicScriptingInstance(self.dsclassCatcher,botRole = bot.role, botNumber = bot.id)
+                bot.script.generateScript(4)
+                bot.script.insertInScript(Rule(catcherRules.default_catcher_rule))
+        
         # give the bots new commands
         #self.log.info("Giving orders to all the bots")
         for bot in self.game.bots_available:
