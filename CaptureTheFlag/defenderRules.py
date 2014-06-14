@@ -1,27 +1,47 @@
 from api import orders
+from api.vector2 import Vector2
 
 #General defend rules.
 
 def defend_rule_1(bot,commander,knowledgeBase):
     """ 1. if (flag is close) Move (to flag) """
     if(bot.position.distance(commander.game.team.flag.position) < commander.level.width / 3):
-        commander.issue(orders.Attack,bot,commander.game.team.flag.position,description = "Defender " + bot.name + " intercept our flag")
+        campspot = knowledgeBase.findCampSpot(commander.game.team.flag.position)
+        diff = commander.game.team.flag.position - campspot
+        diffLeft = Vector2(-diff.y,diff.x)
+        diffRight = Vector2(diff.y,-diff.x)
+        if(bot.position.distance(campspot) > 2):
+            commander.issue(orders.Attack,bot,campspot,description = "Defender " + bot.name + " camp our flag")
+        else:
+            commander.issue(orders.Defend,bot,[(diff,1.0),(diffLeft,1.0),(diffRight,1.0)],description = "Defender " + bot.name + " camping our flag")
         return True
     return False
 
 def defend_rule_2(bot,commander,knowledgeBase):
-    """ 2. if (our flag is captured) Charge (to enemy flag score location) and Defend """
+    """ 2. if (our flag is captured) Charge (to enemy flag score campspot) and Defend """
     if(knowledgeBase.ourFlagCaptured):
-        commander.issue(orders.Charge,bot,commander.game.enemyTeam.flagScoreLocation,description = "Defender " + bot.name + " charging to enemy flag location")
-        commander.issue(orders.Defend,bot,commander.game.enemyTeam.flagScoreLocation,description = "Defender " + bot.name + " occupying enemy flag location")
+        campspot = knowledgeBase.findCampSpot(commander.game.enemyTeam.flagScoreLocation)
+        diff = commander.game.enemyTeam.flagScoreLocation - campspot
+        diffLeft = Vector2(-diff.y,diff.x)
+        diffRight = Vector2(diff.y,-diff.x)
+        if(bot.position.distance(campspot) > 2):
+            commander.issue(orders.Charge,bot,campspot,description = "Defender " + bot.name + " camp enemy flag score location")
+        else:
+            commander.issue(orders.Defend,bot,[(diff,1.0),(diffLeft,1.0),(diffRight,1.0)],description = "Defender " + bot.name + " camping enemy flag score location")
         return True
     return False
 
 def defend_rule_3(bot,commander,knowledgeBase):
-    """ 3. if (enemy spawn is close) Move (to enemy spawn) and Defend """
+    """ 3. if (enemy spawn is close) Move (to enemy spawn campspot) and Defend """
     if(bot.position.distance(knowledgeBase.avgEnemyBotSpawn) < commander.level.width / 3):
-        commander.issue(orders.Attack,bot,knowledgeBase.avgEnemyBotSpawn,description = "Defender " + bot.name + " camp enemy spawn point")
-        commander.issue(orders.Defend,bot,knowledgeBase.avgEnemyBotSpawn,description = "Defender " + bot.name + " camping enemy spawn point")
+        campspot = knowledgeBase.findCampSpot(knowledgeBase.avgEnemyBotSpawn)
+        diff = knowledgeBase.avgEnemyBotSpawn - campspot
+        diffLeft = Vector2(-diff.y,diff.x)
+        diffRight = Vector2(diff.y,-diff.x)
+        if(bot.position.distance(campspot) > 2):
+            commander.issue(orders.Attack,bot,campspot,description = "Defender " + bot.name + " camp enemy spawn point")
+        else:
+            commander.issue(orders.Defend,bot,[(diff,1.0),(diffLeft,1.0),(diffRight,1.0)],description = "Defender " + bot.name + " camping enemy spawn point")
         return True
     return False
 
