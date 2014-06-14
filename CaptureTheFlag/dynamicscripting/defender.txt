@@ -1,1 +1,42 @@
-[{"py/object": "dynamicscripting.Rule", "index": 0, "weight": 8.379849592834463, "func": "defend_rule_1"}, {"py/object": "dynamicscripting.Rule", "index": 1, "weight": -0.07861149473729143, "func": "defend_rule_2"}, {"py/object": "dynamicscripting.Rule", "index": 2, "weight": -0.07861149473729143, "func": "defend_rule_3"}, {"py/object": "dynamicscripting.Rule", "index": 3, "weight": 1.982913484868775, "func": "defend_rule_4"}, {"py/object": "dynamicscripting.Rule", "index": 4, "weight": -0.07861149473729143, "func": "defend_rule_5"}, {"py/object": "dynamicscripting.Rule", "index": 5, "weight": -0.07861149473729143, "func": "defend_rule_6"}, {"py/object": "dynamicscripting.Rule", "index": 6, "weight": -0.07861149473729143, "func": "defend_rule_7"}]
+[{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 10.0,
+    "func": "defend_rule_1"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 0.1,
+    "func": "defend_rule_2"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 0.1,
+    "func": "defend_rule_3"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 0.1,
+    "func": "defend_rule_4"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 0.1,
+    "func": "defend_rule_5"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 0.1,
+    "func": "defend_rule_6"
+},
+{
+    "py/object": "dynamicscripting.Rule",
+    "index": -1,
+    "weight": 0.1,
+    "func": "defend_rule_7"
+}]
