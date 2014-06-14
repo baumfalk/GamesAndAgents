@@ -1,6 +1,6 @@
 import os
 import sys
-cmdBasic = "python simulate.py match --viz-navigation --viz-perception -v info -l map53 "
+cmdBasic = "python simulate.py match --viz-navigation --viz-perception --viz-character -v info -l map53 "
 
 ourBot = "dynamiccommander.DynamicCommander" # {packagename}.{botname}
 
@@ -12,7 +12,7 @@ showdowns["examples.DefenderCommander"] = 12
 showdowns["examples.BalancedCommander"] = 13
 showdowns["mycmd.PlaceholderCommander"] = 12
 showdowns["SleekoCommander.SleekoCommander"] = 12
-"""                            
+"""
 args = sys.argv[1:] if len(sys.argv) > 1 else []
 
 for key in showdowns.keys():
@@ -21,8 +21,8 @@ for key in showdowns.keys():
         print "Match [",(i+1),"/",showdowns[key],"]"
         cmd = cmdBasic + " " + ourBot + " " + key
         
-        if len(args) > 0 and args[0] ==  "--headless":
-			cmd += " --headless"
-		
+        if len(args) > 0 and args[0] == "--headless":
+            cmd += " --headless"
+
         os.system(cmd)
     
