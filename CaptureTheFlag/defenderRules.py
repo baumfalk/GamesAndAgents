@@ -8,12 +8,11 @@ def defend_rule_1(bot,commander,knowledgeBase):
     if(bot.position.distance(commander.game.team.flag.position) < commander.level.width / 3):
         campspot = knowledgeBase.findCampSpot(commander.game.team.flag.position)
         diff = commander.game.team.flag.position - campspot
-        diffLeft = Vector2(-diff.y,diff.x)
-        diffRight = Vector2(diff.y,-diff.x)
+        toClosestEnemy = knowledgeBase.predictNearestEnemy(bot).position - campspot
         if(bot.position.distance(campspot) > 2):
             commander.issue(orders.Attack,bot,campspot,description = "Defender " + bot.name + " camp our flag")
         else:
-            commander.issue(orders.Defend,bot,[(diff,1.0),(diffLeft,1.0),(diffRight,1.0)],description = "Defender " + bot.name + " camping our flag")
+            commander.issue(orders.Defend,bot,[(diff,1.0),(toClosestEnemy,1.0)],description = "Defender " + bot.name + " camping our flag")
         return True
     return False
 
@@ -22,12 +21,11 @@ def defend_rule_2(bot,commander,knowledgeBase):
     if(knowledgeBase.ourFlagCaptured):
         campspot = knowledgeBase.findCampSpot(commander.game.enemyTeam.flagScoreLocation)
         diff = commander.game.enemyTeam.flagScoreLocation - campspot
-        diffLeft = Vector2(-diff.y,diff.x)
-        diffRight = Vector2(diff.y,-diff.x)
+        toClosestEnemy = knowledgeBase.predictNearestEnemy(bot).position - campspot
         if(bot.position.distance(campspot) > 2):
             commander.issue(orders.Charge,bot,campspot,description = "Defender " + bot.name + " camp enemy flag score location")
         else:
-            commander.issue(orders.Defend,bot,[(diff,1.0),(diffLeft,1.0),(diffRight,1.0)],description = "Defender " + bot.name + " camping enemy flag score location")
+            commander.issue(orders.Defend,bot,[(diff,1.0),(toClosestEnemy,1.0)],description = "Defender " + bot.name + " camping enemy flag score location")
         return True
     return False
 
@@ -36,12 +34,11 @@ def defend_rule_3(bot,commander,knowledgeBase):
     if(bot.position.distance(knowledgeBase.avgEnemyBotSpawn) < commander.level.width / 3):
         campspot = knowledgeBase.findCampSpot(knowledgeBase.avgEnemyBotSpawn)
         diff = knowledgeBase.avgEnemyBotSpawn - campspot
-        diffLeft = Vector2(-diff.y,diff.x)
-        diffRight = Vector2(diff.y,-diff.x)
+        toClosestEnemy = knowledgeBase.predictNearestEnemy(bot).position - campspot
         if(bot.position.distance(campspot) > 2):
             commander.issue(orders.Attack,bot,campspot,description = "Defender " + bot.name + " camp enemy spawn point")
         else:
-            commander.issue(orders.Defend,bot,[(diff,1.0),(diffLeft,1.0),(diffRight,1.0)],description = "Defender " + bot.name + " camping enemy spawn point")
+            commander.issue(orders.Defend,bot,[(diff,1.0),(toClosestEnemy,1.0)],description = "Defender " + bot.name + " camping enemy spawn point")
         return True
     return False
 

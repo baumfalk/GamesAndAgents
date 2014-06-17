@@ -7,12 +7,6 @@ def mixedAttackers(numberOfPersons):
     defenderList = ["defender" for x in range(numberOfPersons/3)]
     catcherList = ["catcher" for x in range(numberOfPersons/3)]
     return attackerList + defenderList + catcherList
-
-def onlyAttackers(numberOfPersons):
-    return ["attacker" for x in range(numberOfPersons)]
-    
-def onlyDefenders(numberOfPersons):
-    return ["defender" for x in range(numberOfPersons)]
     
 def onlyCatchers(numberOfPersons):
     return ["catcher" for x in range(numberOfPersons)]
@@ -132,18 +126,6 @@ def meta_rule_14(numberOfPersons,statistics):
         return mixedAttackers(numberOfPersons)
     return None
 
-def meta_rule_15(numberOfPersons,statistics):
-    """ 15. if (we just spawned) everyone is attacker """
-    if statistics.weRespawned:
-        return onlyAttackers(numberOfPersons)
-    return None
-
-def meta_rule_16(numberOfPersons,statistics):
-    """ 16. if (we just spawned) everyone is defender """
-    if statistics.weRespawned:
-        return onlyDefenders(numberOfPersons)
-    return None
-
 def meta_rule_17(numberOfPersons,statistics):
     """ 17. if (we just spawned) everyone is catcher """
     if statistics.weRespawned:
@@ -180,12 +162,6 @@ def meta_rule_22(numberOfPersons,statistics):
         return onlyCatchers(numberOfPersons)
     return None
 
-def meta_rule_23(numberOfPersons,statistics):
-    """ 23. Avengers! if (they killed someone) everyone is attacker """
-    if statistics.theyKilled:
-        return onlyAttackers(numberOfPersons)
-    return None
-
 def meta_rule_24(numberOfPersons,statistics):
     """ 24. Spawn campers! if (they respawned) only one defender """
     if statistics.theyRespawned:
@@ -196,12 +172,6 @@ def meta_rule_25(numberOfPersons,statistics):
     """ 25. Iron man! if (we dropped the flag) only one catcher """
     if statistics.weDropped:
         return singleCatcher(numberOfPersons)
-    return None
-
-def meta_rule_26(numberOfPersons,statistics):
-    """ 26. Intercepters! if (they dropped the flag) everyone is defender """
-    if statistics.theyDropped:
-        return onlyDefenders(numberOfPersons)
     return None
 
 def meta_rule_27(numberOfPersons,statistics):
