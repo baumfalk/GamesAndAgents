@@ -53,6 +53,7 @@ def resetBotStats(bot):
     bot.kills = 0
     bot.flag_pickedup = 0
     bot.flag_dropped = 0
+    bot.flag_stolen = 0
     bot.flag_captured = 0
     bot.flag_restored = 0
 #
@@ -211,6 +212,11 @@ class DynamicCommander(Commander):
                 if event.subject.team == self.game.team:
                     for bot in self.game.team.members:
                         bot.flag_restored += 1
+                continue
+            elif event.type == event.TYPE_FLAG_CAPTURED:
+                if event.subject.team == self.game.team:
+                    for bot in self.game.team.members:
+                        bot.flag_stolen += 1
                 continue
 
             if event.instigator == None:
@@ -386,24 +392,29 @@ class DynamicScriptingInstance:
         """
         team_fitness = self.calculateTeamFitness(knowledge)
         
+        bot_total = 0
         bot_fitness = 0
         if(bot.role == "attacker"):
             bot_fitness = 0.4 * (bot.kills - bot.deaths)
             bot_fitness += 2.0 * bot.flag_captured
             bot_fitness += 0.4 * bot.flag_pickedup - 0.2 * bot.flag_dropped
+            bot_total = 0.4 * (bot.kills + bot.deaths) + 2.0 * bot.flag_captured + 0.4 * bot.flag_pickedup +0.2 * bot.flag_dropped
         elif(bot.role == "defender"):
             bot_fitness = 0.25 * (bot.kills - bot.deaths)
-            bot_fitness += 2.0 * bot.flag_restored
+            bot_fitness += 1.5 * bot.flag_restored - 2.0 * bot.flag_stolen
+            bot_total = 0.25 * (bot.kills + bot.deaths) + 1.5 * bot.flag_restored + 2.0 * bot.flag_stolen
         else: #if(bot.role == "catcher"): #backup
             bot_fitness = 0.2 * (bot.kills - bot.deaths)
             bot_fitness += 3.0 * bot.flag_captured
             bot_fitness += 1.0 * bot.flag_pickedup - 0.3 * bot.flag_dropped
-        
+            bot_total = 0.2 * (bot.kills + bot.deaths) + 3.0 * bot.flag_captured + 1.0 * bot.flag_pickedup + 0.3 * bot.flag_dropped
         #make sure fitness is between zero and one
-        if bot_fitness > 0:
-            bot_fitness = math.exp( -1 / bot_fitness ) 
-        elif bot_fitness < 0:
-            bot_fitness = -math.exp( 1 / bot_fitness ) 
+        #if bot_fitness > 0:
+        #    bot_fitness = math.exp( -1 / bot_fitness ) 
+        #elif bot_fitness < 0:
+        #    bot_fitness = -math.exp( 1 / bot_fitness ) 
+        if bot_total != 0:
+            bot_fitness /= bot_total
         #reset the stats since we don't need them anymore. This does mean no peaking into the current fitness!
         resetBotStats(bot)
 
