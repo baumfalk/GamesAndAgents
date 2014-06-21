@@ -1,18 +1,21 @@
 import os
 import sys
-cmdBasic = "simulate.py match -a -v debug -l map53"
+cmdBasic = "python simulate.py match -a --viz-navigation --viz-perception --viz-character -v info "
 
-ourBot = "dynamicscripting.DynamicCommander" # {packagename}.{botname}
+ourBot = "dynamiccommander.DynamicCommander" # {packagename}.{botname}
 
 showdowns = {} #nameofbot (str) : numberofbattles (int)
-showdowns["barriebot.BarrieCommander"] = 2
+#showdowns["barriebot.BarrieCommander"] = 10
 """showdowns["examples.RandomCommander"] = 10
 showdowns["examples.GreedyCommander"] = 11
 showdowns["examples.DefenderCommander"] = 12
 showdowns["examples.BalancedCommander"] = 13
-showdowns["mycmd.PlaceholderCommander"] = 12
-showdowns["SleekoCommander.SleekoCommander"] = 12
-"""                            
+"""
+showdowns["examples.RandomCommander"] = 3
+showdowns["mycmd.PlaceholderCommander"] = 3
+
+showdowns["SleekoCommander.SleekoCommander"] = 3
+
 args = sys.argv[1:] if len(sys.argv) > 1 else []
 
 for key in showdowns.keys():
@@ -21,8 +24,8 @@ for key in showdowns.keys():
         print "Match [",(i+1),"/",showdowns[key],"]"
         cmd = cmdBasic + " " + ourBot + " " + key
         
-        if len(args) > 0 and args[0] ==  "--headless":
-			cmd += " --headless"
-		
+        if len(args) > 0 and args[0] == "--headless":
+            cmd += " --headless"
+
         os.system(cmd)
     

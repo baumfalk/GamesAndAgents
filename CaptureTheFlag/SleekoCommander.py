@@ -25,7 +25,7 @@ from api.vector2 import Vector2
 
 # Import other modules
 import random
-import png # for writing debug pngs
+#import png # for writing debug pngs
 import networkx as nx # for graphs
 import itertools
 import math
@@ -163,7 +163,6 @@ class SleekoCommander(Commander):
         scoreDict = self.game.match.scores
         myScore = scoreDict[self.game.team.name]
         theirScore = scoreDict[self.game.enemyTeam.name]
-        self.log.info("Woop " + str(myScore) + "-" + str(theirScore))
         # listen for events
         if len(self.game.match.combatEvents) > self.lastEventCount:
             lastCombatEvent = self.game.match.combatEvents[-1]

@@ -183,7 +183,7 @@ class Knowledge:
     """
     Returns the location of the middle of your flag stand and the enemy flag return point. 
     """
-    def getMidsection(self,bot):
+    def getMidsection(self):
         return (self.commander.game.enemyTeam.flagScoreLocation + self.commander.game.team.flagSpawnLocation / 2)
     
     """
@@ -336,3 +336,68 @@ class Knowledge:
                 break
         result.normalize()
         return result
+    
+    """
+    Finds a camping spot that has the specified position
+    in its visor.
+    """
+    def findCampSpot(self,target):
+        maxdist = int(self.level.firingDistance) - 2
+        bestSpot = None
+        bestCover = -1
+        for x in range(-maxdist,maxdist):
+            for y in range(-maxdist,maxdist):
+                candidate = Vector2(x,y) + target
+                intx = int(round(candidate.x))
+                inty = int(round(candidate.y))
+                if not self.isInLevel(candidate): #Not in level.
+                    continue
+                if intx >= len(self.level.blockHeights) or inty >= len(self.level.blockHeights[intx]): #Rounded is not in level
+                    continue
+                if Vector2(x,y).length() > maxdist: #Too far.
+                    continue
+                if self.level.blockHeights[intx][inty] > 0: #Can't move here.
+                    continue
+                if not self.canShootTo(target,candidate): #Vision is obstructed from here.
+                    continue
+                #Count the number of blocks that provide cover.
+                cover = 0
+                if intx + 1 >= len(self.level.blockHeights) or self.level.blockHeights[intx + 1][inty] > 1.5:
+                    cover += 1
+                if inty - 1 < 0 or self.level.blockHeights[intx][inty - 1] > 1.5:
+                    cover += 1
+                if intx - 1 < 0 or self.level.blockHeights[intx - 1][inty] > 1.5:
+                    cover += 1
+                if inty + 1 >= len(self.level.blockHeights[intx]) or self.level.blockHeights[intx][inty + 1] > 1.5:
+                    cover += 1
+                if cover > bestCover:
+                    bestCover = cover
+                    bestSpot = candidate
+        if bestSpot == None:
+            return target
+        return bestSpot
+    
+    """
+    Checks whether there is line of sight for firing
+    to a target position from  a certain location
+    """
+    def canShootTo(self,target,origin):
+        targetDistance = origin.distance(target)
+        if targetDistance < 0.1:
+            return True
+        smallDiff = target - origin
+        smallDiff.normalize()
+        smallDiff = smallDiff * 0.1
+        canShoot = True
+        pos = origin
+        while pos.distance(origin) < targetDistance and canShoot and self.isInLevel(pos):
+            if self.level.blockHeights[int(round(pos.x))][int(round(pos.y))] > 1.5:
+                canShoot = False
+            pos += smallDiff
+        return canShoot
+    
+    """
+    Returns whether a position vector is in the level bounds.
+    """
+    def isInLevel(self,position):
+        return position.x > 0 and position.y > 0 and position.x < self.level.width and position.y < self.level.height
