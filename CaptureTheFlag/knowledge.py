@@ -210,6 +210,12 @@ class Knowledge:
             distToEdge = self.level.width - x
             result = Vector2(self.level.width,y)
         
+        #Take some distance from the edge of the level.
+        if distToEdge > self.commander.level.firingDistance: #But don't go walking further away from the edge either.
+            diff = bot.position - result
+            diff = diff.normalized() * self.commander.level.firingDistance
+            result += diff
+        
         return result
 
     def getSign(self,start,target):
@@ -262,7 +268,7 @@ class Knowledge:
         # the scoring base then it is better to approach straight away
         while True:
             if botPos.squaredDistance(path[0]) > botPos.squaredDistance(path[-1]):
-                path = path[-1]
+                path = [path[-1]]
                 break
             elif len(path) > 2 and Vector2.distance(botPos,path[-1]) < Vector2.distance(path[0],path[-1]):
                 path.pop(0)
@@ -317,7 +323,7 @@ class Knowledge:
             # the scoring base then it is better to approach straight away
         while True:
             if botPos.squaredDistance(path[0]) > botPos.squaredDistance(path[-1]):
-                path = path[-1]
+                path = [path[-1]]
                 break
             elif len(path) > 2 and Vector2.distance(botPos,path[-1]) < Vector2.distance(path[0],path[-1]):
                 path.pop(0)
@@ -339,7 +345,8 @@ class Knowledge:
     
     """
     Finds a camping spot that has the specified position
-    in its visor.
+    in its visor. Useful for defending a specific tactical
+    location. Finds a secluded spot with lots of cover.
     """
     def findCampSpot(self,target):
         maxdist = int(self.level.firingDistance) - 2
@@ -390,10 +397,14 @@ class Knowledge:
         smallDiff = smallDiff * 0.1
         canShoot = True
         pos = origin
-        while pos.distance(origin) < targetDistance and canShoot and self.isInLevel(pos):
-            if self.level.blockHeights[int(round(pos.x))][int(round(pos.y))] > 1.5:
+        posx = int(round(pos.x))
+        posy = int(round(pos.y))
+        while pos.distance(origin) < targetDistance and canShoot and self.isInLevel(pos) and posx < len(self.level.blockHeights) and posy < len(self.level.blockHeights[posx]):
+            if self.level.blockHeights[posx][posy] > 1.5:
                 canShoot = False
             pos += smallDiff
+            posx = int(round(pos.x))
+            posy = int(round(pos.y))
         return canShoot
     
     """
@@ -401,3 +412,39 @@ class Knowledge:
     """
     def isInLevel(self,position):
         return position.x > 0 and position.y > 0 and position.x < self.level.width and position.y < self.level.height
+    
+    def isFree(self,position):
+        return self.level.blockHeights[int(position.x)][int(position.y)] <= 0
+
+    """
+    Finds a close spot that has the specified position in
+    its visor. Useful for defending or attacking a target
+    quickly.
+    """
+    def findCloseSpot(self,target,botPosition):
+        maxdist = int(self.level.firingDistance) - 2
+        bestSpot = None
+        bestDistance = -1
+        for x in range(-maxdist,maxdist):
+            for y in range(-maxdist,maxdist):
+                candidate = Vector2(x,y) + target
+                intx = int(round(candidate.x))
+                inty = int(round(candidate.y))
+                if not self.isInLevel(candidate): #Not in level.
+                    continue
+                if intx >= len(self.level.blockHeights) or inty >= len(self.level.blockHeights[intx]): #Rounded is not in level
+                    continue
+                if Vector2(x,y).length() > maxdist: #Too far.
+                    continue
+                if self.level.blockHeights[intx][inty] > 0: #Can't move here.
+                    continue
+                if not self.canShootTo(target,candidate): #Vision is obstructed from here.
+                    continue
+                #Count the number of blocks that provide cover.
+                distance = botPosition.distance(candidate)
+                if distance < bestDistance:
+                    bestDistance = cover
+                    bestSpot = candidate
+        if bestSpot == None:
+            return target
+        return bestSpot
