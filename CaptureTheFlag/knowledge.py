@@ -240,29 +240,35 @@ class Knowledge:
         if (not upDown):
             # find closest side
             if self.level.height - botPos.y > self.level.height/2:
-                path = [Vector2(middle.x - (middlesign*middle.x)/2,5),
-                         Vector2(middle.x,5),
-                         Vector2(middle.x + (middlesign*middle.x)/2,5),
-                         target]
+                path = [
+                        self.commander.level.findNearestFreePosition(Vector2(middle.x - (middlesign*middle.x)/2,5)),
+                         self.commander.level.findNearestFreePosition(Vector2(middle.x,5)),
+                         self.commander.level.findNearestFreePosition(Vector2(middle.x + (middlesign*middle.x)/2,5)),
+                         target,
+                         self.commander.level.findRandomFreePositionInBox([target-2.5,target+2.5])
+                         ]
             else:
-                path = [ Vector2(middle.x - (middlesign*middle.x)/2,self.level.height-5),
-                         Vector2(middle.x,self.level.height-5),
-                         Vector2(middle.x + (middlesign*middle.x)/2,self.level.height-5),
-                         target
+                path = [ self.commander.level.findNearestFreePosition(Vector2(middle.x - (middlesign*middle.x)/2,self.level.height-5)),
+                         self.commander.level.findNearestFreePosition(Vector2(middle.x,self.level.height-5)),
+                         self.commander.level.findNearestFreePosition(Vector2(middle.x + (middlesign*middle.x)/2,self.level.height-5)),
+                         target,
+                         self.commander.level.findRandomFreePositionInBox([target-2.5,target+2.5])
                         ]
         else:
             # find closest side
             if self.level.width - botPos.x > self.level.width/2:
-                    path = [ Vector2(5,middle.y - (middlesign*middle.y)/2),
-                         Vector2(5,middle.y),
-                         Vector2(5,middle.y + (middlesign*middle.y)/2),
-                         target
+                    path = [ self.commander.level.findNearestFreePosition(Vector2(5,middle.y - (middlesign*middle.y)/2)),
+                         self.commander.level.findNearestFreePosition(Vector2(5,middle.y)),
+                         self.commander.level.findNearestFreePosition(Vector2(5,middle.y + (middlesign*middle.y)/2)),
+                         target,
+                         self.commander.level.findRandomFreePositionInBox([target-2.5,target+2.5])
                     ]
             else:
-                path = [ Vector2(self.level.width-5,middle.y - (middlesign*middle.y)/2),
-                         Vector2(self.level.width-5,middle.y),
-                         Vector2(self.level.width-5,middle.y + (middlesign*middle.y)/2),
-                         target
+                path = [self.commander.level.findNearestFreePosition(Vector2(self.level.width-5,middle.y - (middlesign*middle.y)/2)),
+                         self.commander.level.findNearestFreePosition(Vector2(self.level.width-5,middle.y)),
+                         self.commander.level.findNearestFreePosition(Vector2(self.level.width-5,middle.y + (middlesign*middle.y)/2)),
+                         target,
+                         self.commander.level.findRandomFreePositionInBox([target-2.5,target+2.5])
                     ]
         # in case the capper has picked the flag from a fallen capper and the flag is near
         # the scoring base then it is better to approach straight away
@@ -295,29 +301,34 @@ class Knowledge:
         if (not upDown):
             # find furthest side
             if self.level.height - botPos.y < self.level.height/2:
-                path = [Vector2(middle.x - (middlesign*middle.x)/2,5),
-                             Vector2(middle.x,5),
-                             Vector2(middle.x + (middlesign*middle.x)/2,5),
-                             target]
+                path = [self.commander.level.findNearestFreePosition(Vector2(middle.x - (middlesign*middle.x)/2,5)),
+                             self.commander.level.findNearestFreePosition(Vector2(middle.x,5)),
+                             self.commander.level.findNearestFreePosition(Vector2(middle.x + (middlesign*middle.x)/2,5)),
+                             target,
+                             self.commander.level.findRandomFreePositionInBox([target-2.5,target+2.5])
+                        ]
             else:
-                path = [ Vector2(middle.x - (middlesign*middle.x)/2,self.level.height-5),
-                             Vector2(middle.x,self.level.height-5),
-                             Vector2(middle.x + (middlesign*middle.x)/2,self.level.height-5),
-                             target
+                path = [ self.commander.level.findNearestFreePosition(Vector2(middle.x - (middlesign*middle.x)/2,self.level.height-5)),
+                             self.commander.level.findNearestFreePosition(Vector2(middle.x,self.level.height-5)),
+                             self.commander.level.findNearestFreePosition(Vector2(middle.x + (middlesign*middle.x)/2,self.level.height-5)),
+                             target,
+                             self.commander.level.findRandomFreePositionInBox([target-2.5,target+2.5])
                             ]
         else:
             # find furthest side
             if self.level.width - botPos.x < self.level.width/2:
-                path = [ Vector2(5,middle.y - (middlesign*middle.y)/2),
-                             Vector2(5,middle.y),
-                             Vector2(5,middle.y + (middlesign*middle.y)/2),
-                             target
+                path = [ self.commander.level.findNearestFreePosition(Vector2(5,middle.y - (middlesign*middle.y)/2)),
+                             self.commander.level.findNearestFreePosition(Vector2(5,middle.y)),
+                             self.commander.level.findNearestFreePosition(Vector2(5,middle.y + (middlesign*middle.y)/2)),
+                             target,
+                             self.commander.level.findRandomFreePositionInBox([target-2.5,target+2.5])
                         ]
             else:
-                path = [ Vector2(self.level.width-5,middle.y - (middlesign*middle.y)/2),
-                             Vector2(self.level.width-5,middle.y),
-                             Vector2(self.level.width-5,middle.y + (middlesign*middle.y)/2),
-                             target
+                path = [ self.commander.level.findNearestFreePosition(Vector2(self.level.width-5,middle.y - (middlesign*middle.y)/2)),
+                             self.commander.level.findNearestFreePosition(Vector2(self.level.width-5,middle.y)),
+                             self.commander.level.findNearestFreePosition(Vector2(self.level.width-5,middle.y + (middlesign*middle.y)/2)),
+                             target,
+                             self.commander.level.findRandomFreePositionInBox([target-2.5,target+2.5])
                         ]
             # in case the capper has picked the flag from a fallen capper and the flag is near
             # the scoring base then it is better to approach straight away

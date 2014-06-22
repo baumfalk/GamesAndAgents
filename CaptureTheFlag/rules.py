@@ -478,7 +478,7 @@ def capture_rule2(bot,commander,knowledgeBase):
 """
 def capture_rule3(bot,commander,knowledgeBase):
     if bot.flag:
-        target = commander.game.team.flagScoreLocation
+        target = [commander.game.team.flagScoreLocation,commander.level.findRandomFreePositionInBox(commander.game.team.flagScoreLocation-2.5,commander.game.team.flagScoreLocation+2.5)]
         commander.issue(orders.Move,bot,target, description = "Catcher "+ bot.name + " Move directly to scoring point")
         return True
     return False
@@ -489,7 +489,7 @@ def capture_rule3(bot,commander,knowledgeBase):
 """
 def capture_rule4(bot,commander,knowledgeBase):
     if bot.flag:
-        target = commander.game.team.flagScoreLocation
+        target = [commander.game.team.flagScoreLocation,commander.level.findRandomFreePositionInBox(commander.game.team.flagScoreLocation-2.5,commander.game.team.flagScoreLocation+2.5)]
         commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge directly to scoring point")
         return True
     return False
@@ -548,7 +548,7 @@ def capture_rule8(bot,commander,knowledgeBase):
 """
 def capture_rule9(bot,commander,knowledgeBase):
     if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
+        target = [commander.game.enemyTeam.flag.position,commander.level.findRandomFreePositionInBox(commander.game.enemyTeam.flag.position-2.5,commander.game.enemyTeam.flag.position+2.5)]
         commander.issue(orders.Move,bot,target, description = "Catcher "+ bot.name + " Move directly to flag")
         return True
     return False
@@ -559,7 +559,7 @@ def capture_rule9(bot,commander,knowledgeBase):
 """
 def capture_rule10(bot,commander,knowledgeBase):
     if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
+        target = [commander.game.enemyTeam.flag.position,commander.level.findRandomFreePositionInBox(commander.game.enemyTeam.flag.position-2.5,commander.game.enemyTeam.flag.position+2.5)]
         commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge directly to flag")
         return True
     return False
@@ -597,6 +597,7 @@ def capture_rule13(bot,commander,knowledgeBase):
         target = commander.game.enemyTeam.flagSpawnLocation
         path = knowledgeBase.createShortFlankingPath(bot.position,target)
         commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge to flag spawning point from closest side")
+        commander.issue(orders.Defend,bot,commander.game.enemyTeam.flagSpawnLocation,description = "Capper " + bot.name + " occupying enemy flag location")
         return True
     return False
 	
@@ -609,6 +610,7 @@ def capture_rule14(bot,commander,knowledgeBase):
         target = commander.game.enemyTeam.flagSpawnLocation
         path = knowledgeBase.createLongFlankingPath(bot.position,target)
         commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge to flag spawning point from furthest side")
+        commander.issue(orders.Defend,bot,commander.game.enemyTeam.flagSpawnLocation,description = "Capper " + bot.name + " occupying enemy flag location")
         return True
     return False
 	
@@ -620,6 +622,7 @@ def capture_rule15(bot,commander,knowledgeBase):
     if not bot.flag and knowledgeBase.ourFlagCaptured:
         target = commander.game.enemyTeam.flagScoreLocation
         commander.issue(orders.Charge,bot,target, description = "Catcher "+ bot.name + " Charge enemy's scoring point")
+        commander.issue(orders.Defend,bot,commander.game.enemyTeam.flagScoreLocation,description = "Capper " + bot.name + " occupying enemy flag score location")
         return True
     return False
 # Attack rule 1 and 6
