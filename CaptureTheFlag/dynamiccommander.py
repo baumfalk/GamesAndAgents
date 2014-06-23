@@ -300,11 +300,14 @@ class DynamicCommander(Commander):
         #self.log.info("Giving orders to all the bots")
         for bot in self.game.bots_available:
             bot.script.runDynamicScript([bot,self,self.knowledge])
+            self.timeSinceLastCommand[bot.id] = self.game.match.timePassed     
+
             
         for bot in self.game.team.members:
-            # more than 5 seconds (15 ticks) since bot has been available
+            # more than 30 seconds (90 ticks) since bot has been available
             # it is probably stuck doing something silly, so reactivate it.
-            if self.timeSinceLastCommand[bot.id] - self.game.match.timePassed  > 5:
+            print self.game.match.timePassed - self.timeSinceLastCommand[bot.id]
+            if self.game.match.timePassed - self.timeSinceLastCommand[bot.id] > 30:
                 print "REACTIVATING BOT", bot.id
                 bot.script.runDynamicScript([bot,self,self.knowledge])
                 self.timeSinceLastCommand[bot.id] = self.game.match.timePassed     
