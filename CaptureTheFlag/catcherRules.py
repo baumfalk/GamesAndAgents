@@ -170,15 +170,6 @@ def capture_rule14(bot,commander,knowledgeBase):
     return False
 	
 
-def capture_rule15(bot,commander,knowledgeBase):
-    """ 15. [0] if (doesn't have flag && our flag is captured) Charge (enemy scoring point) """
-    if not bot.flag and commander.game.team.flag.carrier != None:
-        target = commander.game.enemyTeam.flagScoreLocation
-        commander.issue(orders.Charge,bot,target, description = "Catcher " + bot.name + " Charge enemy's scoring point")
-        return True
-    return False
-	
-
 def default_catcher_rule(bot,commander,knowledgeBase):
     """ The default catcher rule. """
     if not bot.flag:
