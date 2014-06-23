@@ -425,6 +425,10 @@ class Knowledge:
         return position.x > 0 and position.y > 0 and position.x < self.level.width and position.y < self.level.height
     
     def isFree(self,position):
+        if int(position.x) >= len(self.level.blockHeights):
+            return False
+        if int(position.y) >= len(self.level.blockHeights[position.x]):
+            return False
         return self.level.blockHeights[int(position.x)][int(position.y)] <= 0
 
     """
