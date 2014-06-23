@@ -306,7 +306,6 @@ class DynamicCommander(Commander):
         for bot in self.game.team.members:
             # more than 30 seconds (90 ticks) since bot has been available
             # it is probably stuck doing something silly, so reactivate it.
-            print self.game.match.timePassed - self.timeSinceLastCommand[bot.id]
             if self.game.match.timePassed - self.timeSinceLastCommand[bot.id] > 30:
                 print "REACTIVATING BOT", bot.id
                 bot.script.runDynamicScript([bot,self,self.knowledge])
