@@ -102,7 +102,7 @@ class DynamicScriptingInstance:
                 selected = False
                 # fraction depending on the sum of the weights of the rule type
                 fraction = random.uniform(0.0, sumweights[types[0]-1])
-                while not selected:
+                while not selected and j < len(self.dsclass.rulebase):
                     # we sum the weight of the same rule type
                     if(self.dsclass.rulebase[j].rule_type == types[0]):
                         sum += self.dsclass.rulebase[j].weight
@@ -110,10 +110,11 @@ class DynamicScriptingInstance:
                         selected = True
                     else:
                         j += 1
-                lineadded = self.insertInScript( self.dsclass.rulebase[j] )
-                if(lineadded):
-                    # if line added pop and go to the next rule
-                    types.pop(0)
+                if j < len(self.dsclass.rulebase):
+                    lineadded = self.insertInScript( self.dsclass.rulebase[j] )
+                    if(lineadded):
+                        # if line added pop and go to the next rule
+                        types.pop(0)
                 num_tries += 1
 
     def calculateAdjustment( self, fitness ):

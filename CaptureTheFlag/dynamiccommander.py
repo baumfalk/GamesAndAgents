@@ -303,3 +303,4 @@ class DynamicCommander(Commander):
     def shutdown(self):
         self.updateWeights()
         self.saveWeights()
+        print "statistics:",self.statistics.ourScore,"-",self.statistics.theirScore

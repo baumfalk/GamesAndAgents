@@ -8,10 +8,17 @@ def defend_rule_1(bot,commander,knowledgeBase):
     if(bot.position.distance(commander.game.team.flag.position) < commander.level.width / 3):
         campspot = knowledgeBase.findCampSpot(commander.game.team.flag.position)
         diff = commander.game.team.flag.position - campspot
-        left = Vector2(-diff.y,diff.x).normalized()
-        right = Vector2(diff.y,-diff.x).normalized()
+        if(diff.length() == 0):
+            left = diff
+            right = diff
+        else:
+            left = Vector2(-diff.y,diff.x).normalized()
+            right = Vector2(diff.y,-diff.x).normalized()
         toClosestEnemy = knowledgeBase.predictNearestEnemy(bot).position - campspot
-        toClosestEnemy.normalize()
+        if(toClosestEnemy.length() == 0):
+            toClosestEnemy = diff
+        else:
+            toClosestEnemy.normalize()
         looks = [(diff,1.0)]
         if(knowledgeBase.canShootTo(left,bot.position)):
             looks.append((left,1.0))
