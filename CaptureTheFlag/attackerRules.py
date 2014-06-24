@@ -138,7 +138,7 @@ def attack_rule_14(bot,commander,knowledgeBase):
 def default_attacker_rule(bot,commander,knowledgeBase):
     """ The default attacker rule. """
     if(knowledgeBase.ourFlagCaptured and knowledgeBase.atMidsection(bot)):
-        commander.issue(orders.Charge, bot, commander.game.enemyTeam.flag.position,description = "Attacker " + bot.name + " charge to enemy flag")
+        commander.issue(orders.Charge, bot, commander.game.enemyTeam.flag.position,description = "Attacker" + bot.name + "charge to enemy flag")
     else:
-        commander.issue(orders.Charge, bot, knowledgeBase.findCloseSpot(knowledgeBase.enemyBase,bot.position),description = "Attacker " + bot.name + " charge to enemy base")
+        commander.issue(orders.Charge, bot, commander.game.enemyTeam.flagScoreLocation ,description = "Attacker" + bot.name + "charge to enemy base")
     return True
