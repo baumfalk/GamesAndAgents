@@ -29,7 +29,7 @@ def capture_rule2(bot,commander,knowledgeBase):
 def capture_rule3(bot,commander,knowledgeBase):
     """ 3. [1] if (has flag) Move (shortest path to base) """
     if bot.flag:
-        target = commander.game.team.flagScoreLocation
+        target = [commander.game.team.flagScoreLocation,commander.level.findRandomFreePositionInBox([commander.game.team.flagScoreLocation-2.5,commander.game.team.flagScoreLocation+2.5])]
         commander.issue(orders.Move,bot,target,description = "Catcher " + bot.name + " Move directly to scoring point")
         return True
     return False
@@ -38,7 +38,7 @@ def capture_rule3(bot,commander,knowledgeBase):
 def capture_rule4(bot,commander,knowledgeBase):
     """ 4. [1] if (has flag) Charge (shortest path to base) """
     if bot.flag:
-        target = commander.game.team.flagScoreLocation
+        target = [commander.game.team.flagScoreLocation,commander.level.findRandomFreePositionInBox([commander.game.team.flagScoreLocation-2.5,commander.game.team.flagScoreLocation+2.5])]
         commander.issue(orders.Charge,bot,target,description = "Catcher " + bot.name + " Charge directly to scoring point")
         return True
     return False
@@ -99,7 +99,7 @@ def capture_rule8(bot,commander,knowledgeBase):
 def capture_rule9(bot,commander,knowledgeBase):
     """ 9. [0] if (doesn't have flag && flag isn't captured) Move (closest path to flag) """
     if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
+        target = [commander.game.enemyTeam.flag.position,commander.level.findRandomFreePositionInBox([commander.game.enemyTeam.flag.position-2.5,commander.game.enemyTeam.flag.position+2.5])]
         commander.issue(orders.Move,bot,target,description = "Catcher " + bot.name + " Move directly to flag")
         return True
     return False
@@ -108,7 +108,7 @@ def capture_rule9(bot,commander,knowledgeBase):
 def capture_rule10(bot,commander,knowledgeBase):
     """ 10. [0] if (doesn't have flag && enemy flag isn't captured) Charge (closest path to flag) """
     if not bot.flag and commander.game.enemyTeam.flag.carrier == None:
-        target = commander.game.enemyTeam.flag.position
+        target = [commander.game.enemyTeam.flag.position,commander.level.findRandomFreePositionInBox([commander.game.enemyTeam.flag.position-2.5,commander.game.enemyTeam.flag.position+2.5])]
         commander.issue(orders.Charge,bot,target,description = "Catcher " + bot.name + " Charge directly to flag")
         return True
     return False

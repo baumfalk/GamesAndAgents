@@ -41,9 +41,7 @@ from api.vector2 import Vector2
 from knowledge import Knowledge
 from statistics import Statistics
 import sys
-
 import jsonpickle
-import rules
 import attackerRules
 import defenderRules
 import catcherRules
@@ -87,7 +85,7 @@ class DynamicCommander(Commander):
         if(roleList != None):
             self.distributeRoles(roleList)
         else: #If none of the rules apply, use a mixed team.
-            self.distributeRoles(rules.mixedAttackers(len(self.game.team.members)))
+            self.distributeRoles(metaRules.mixedAttackers(len(self.game.team.members)))
         # and generate the corresponding scripts
         self.initializeRoles()
         self.initializeBotStats()
