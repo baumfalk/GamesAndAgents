@@ -1,3 +1,4 @@
 *.pyc
 CaptureTheFlag/logs/*
 *2.txt
+*.pyc

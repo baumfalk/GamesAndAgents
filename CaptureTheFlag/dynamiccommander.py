@@ -13,7 +13,7 @@
 This bot works as follows
 
 There exists various text files in the folder ./dynamicscripting/. These contain rules, as well as weights for these and an ordering on these rules.
-The actual implementation in this rules is (currently) in this file. Most of the text files describe the rules for various roles
+The actual implementation in this rules are in the *Rules.py. Most of the text files describe the rules for various roles
 that a bot can have, such as an attacker, a defender etc. There are two special text files, namely meta_roles.txt and meta_switch.txt. These
 files list the rules that are used for distributing the various roles to the bots and the rules used for deciding when to switch role distribution.
 
@@ -24,9 +24,10 @@ The code flow is as follows:
 3. For each bot, a script is generated based on the rule set associated with its role
 4. For each tick, the following happens:
 5. The meta switch rules determine whether a role switch is necessary and if so, perform this.
-6. Each bot generates a new action, based on its rule set and the information provided by the commander. The commander 'issues' this command
+6. Each available bot generates a new action, based on its rule set and the information provided by the commander. The commander 'issues' this command
    to the bot (even though the bot generated it himself)
-
+7. Any bot which has the flag becomes a Catcher and is assigned a corresponding script
+8. Any bot which has been unavailable for more than 45s is issued a new order.
 """
 
 import random
@@ -136,14 +137,7 @@ class DynamicCommander(Commander):
     Distributes the roles to the bots according to a given distribution.
     """
     def distributeRoles(self,roleList):
-        self.log.info("Distributing the roles")
-        
-        #script generation! Currently only one rule in the rulebase.
-		# I don't know if these two lines are need
-        #self.metaRoleScript =  DynamicScriptingInstance(DynamicScriptingClass(self.metaRoleRuleBase))
-        #self.metaRoleScript.generateScript(1)
-
-        
+        self.log.info("Distributing the roles")       
         self.log.info("Rolelist: "+ str(roleList))
         #assign each bot a role
         for botIndex in range(len(roleList)):
@@ -151,10 +145,12 @@ class DynamicCommander(Commander):
             
     def initializeRoles(self):
         self.log.info("Initializing roles")
+		# load the rulebases
         self.dsclassAttacker = DynamicScriptingClass(self.attackerRulebase,"attackerRules")
         self.dsclassDefender = DynamicScriptingClass(self.defenderRulebase,"defenderRules")
         self.dsclassCatcher = DynamicScriptingClass(self.catcherRulebase,"catcherRules")
         i = 1
+		#assign each bot a role, depending on its role
         for bot in self.game.team.members:
             bot.id = i
             self.log.info("Bot #" + str(i) + ": Generating " + bot.role + " script")
@@ -182,7 +178,7 @@ class DynamicCommander(Commander):
     """
     def initializeBotStats(self):
     
-        self.timeSinceLastCommand = {}
+        self.timeSinceLastCommand = {} # used to detect bots that are stuck
     
         for bot in self.game.team.members:
             resetBotStats(bot)
@@ -198,12 +194,8 @@ class DynamicCommander(Commander):
         for bot in self.game.team.members:
             fitness = bot.script.calculateAgentFitness(bot, self.knowledge)
             self.log.info("Bot #" + str(bot.id) + "[" + bot.role + "] fitness:" + str(fitness))
-            # print "fitness:" + str(fitness)
-            #for ruleid in  range(len(bot.script.dsclass.rulebase)):
-            #    print "old weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
+           
             bot.script.adjustWeights(fitness,self)
-            #for ruleid in  range(len(bot.script.dsclass.rulebase)):
-            #   print "new weight of rule ", ruleid," ", bot.script.dsclass.rulebase[ruleid].weight
 
     """
     Save all the weights back to the files.
@@ -214,6 +206,9 @@ class DynamicCommander(Commander):
         self.saveWeightsRulebase(self.catcherRulebase,"catcher")
         self.saveWeightsRulebase(self.metaRuleBase,"meta")
     
+	"""
+	save a certain rulebase
+	"""
     def saveWeightsRulebase(self,rulebase,name):
         conn = open(sys.path[0] + "/dynamicscripting/" + name + ".txt",'w')
         funcBackup = []
@@ -230,7 +225,8 @@ class DynamicCommander(Commander):
             rulebase[i].func = funcBackup[i]
 
     """
-    Update the statistics for the bots.
+    Update the statistics for the bots. 
+	Statistics are used to calculate bot fitness
     """
     def updateBotStats(self):
         for event in self.game.match.combatEvents:
@@ -289,6 +285,7 @@ class DynamicCommander(Commander):
             self.metaScript = DynamicScriptingInstance(DynamicScriptingClass(self.metaRuleBase,"metaRules"))
             self.metaScript.generateScript(3)
         
+		# a bot that has the flag needs to be a catcher
         for bot in self.game.team.members:
             if bot.flag is not None and bot.role != "catcher":
                 bot.role = "catcher"
@@ -297,12 +294,11 @@ class DynamicCommander(Commander):
                 bot.script.insertInScript(Rule(catcherRules.default_catcher_rule))
     
         # give the bots new commands
-        #self.log.info("Giving orders to all the bots")
         for bot in self.game.bots_available:
             bot.script.runDynamicScript([bot,self,self.knowledge])
             self.timeSinceLastCommand[bot.id] = self.game.match.timePassed     
 
-            
+        # detect bots that are stuck    
         for bot in self.game.team.members:
             # more than 30 seconds (90 ticks) since bot has been available
             # it is probably stuck doing something silly, so reactivate it.
